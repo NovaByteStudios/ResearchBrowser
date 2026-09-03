@@ -165,6 +165,17 @@ input {
   background: var(--surface-hover);
 }
 
+.icon-button:disabled {
+  color: #4e5665;
+  background: transparent;
+  cursor: default;
+}
+
+.icon-button:disabled:hover {
+  color: #4e5665;
+  background: transparent;
+}
+
 .address-container {
   display: flex;
   align-items: center;
