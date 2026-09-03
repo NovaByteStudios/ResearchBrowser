@@ -1,0 +1,23 @@
+{
+  "name": "research-browser",
+  "version": "0.1.0",
+  "description": "A workspace-based desktop browser for research",
+  "main": "src/main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "electron",
+    "browser",
+    "research",
+    "workspace"
+  ],
+  "author": "Felix Michel",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^44.1.1"
+  }
+}
