@@ -2,15 +2,280 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles.css">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
+
   <title>Research Browser</title>
+
 </head>
 
 <body>
-  <h1>Research Browser</h1>
-  <p>Die erste Version der Desktop-App läuft.</p>
+  <div class="app">
+
+    <!-- Tab-Leiste -->
+    <header class="tab-bar">
+      <div class="tab active">
+        <span class="tab-icon">⌂</span>
+        <span class="tab-title">Research Browser</span>
+
+        <button
+          class="tab-close"
+          type="button"
+          aria-label="Tab schließen"
+          title="Tab schließen"
+        >
+          ×
+        </button>
+      </div>
+
+      <button
+        class="new-tab-button"
+        type="button"
+        aria-label="Neuer Tab"
+        title="Neuer Tab"
+      >
+        +
+      </button>
+    </header>
+
+    <!-- Browser-Navigation -->
+    <nav class="navigation-bar">
+      <div class="navigation-buttons">
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Zurück"
+          title="Zurück"
+        >
+          ←
+        </button>
+
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Vorwärts"
+          title="Vorwärts"
+        >
+          →
+        </button>
+
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Neu laden"
+          title="Neu laden"
+        >
+          ↻
+        </button>
+      </div>
+
+      <div class="address-container">
+        <span
+          class="address-security"
+          aria-hidden="true"
+        >
+          ⌕
+        </span>
+
+        <input
+          class="address-bar"
+          type="text"
+          placeholder="Adresse eingeben oder suchen"
+          aria-label="Adressleiste"
+          autocomplete="off"
+          spellcheck="false"
+        >
+      </div>
+
+      <div class="action-buttons">
+        <button
+          class="save-source-button"
+          type="button"
+          title="Aktuelle Webseite als Quelle speichern"
+        >
+          Quelle speichern
+        </button>
+
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Menü öffnen"
+          title="Menü"
+        >
+          ⋮
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hauptbereich -->
+    <div class="main-area">
+
+      <!-- Seitenleiste -->
+      <aside class="sidebar">
+        <div class="workspace-label">
+          Aktiver Workspace
+        </div>
+
+        <div class="workspace-name">
+          <span aria-hidden="true">🔎</span>
+          <strong>Erster Workspace</strong>
+        </div>
+
+        <nav
+          class="sidebar-navigation"
+          aria-label="Workspace-Bereiche"
+        >
+          <button
+            class="sidebar-button active"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">⌂</span>
+            <span class="sidebar-text">Browser</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">★</span>
+            <span class="sidebar-text">Quellen</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">✎</span>
+            <span class="sidebar-text">Notizen</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">◷</span>
+            <span class="sidebar-text">Timeline</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">◇</span>
+            <span class="sidebar-text">Research Board</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">⇩</span>
+            <span class="sidebar-text">Downloads</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-settings">
+          <button
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon" aria-hidden="true">⚙</span>
+            <span class="sidebar-text">Einstellungen</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Inhaltsbereich -->
+      <main class="content">
+        <section class="start-page">
+          <div class="start-content">
+
+            <div
+              class="logo"
+              aria-hidden="true"
+            >
+              R
+            </div>
+
+            <h1>Research Browser</h1>
+
+            <p class="start-description">
+              Recherchieren, Quellen sichern und Wissen
+              übersichtlich in einem Workspace organisieren.
+            </p>
+
+            <div class="search-box">
+              <span aria-hidden="true">⌕</span>
+
+              <input
+                type="text"
+                placeholder="Webadresse oder Suchbegriff eingeben"
+                aria-label="Webadresse oder Suchbegriff"
+                autocomplete="off"
+                spellcheck="false"
+              >
+            </div>
+
+            <div class="feature-cards">
+
+              <article class="feature-card">
+                <span
+                  class="feature-card-icon"
+                  aria-hidden="true"
+                >
+                  ★
+                </span>
+
+                <strong>Quellen speichern</strong>
+
+                <p>
+                  Webseiten später mit Notizen, Tags und
+                  einem Prüfstatus sichern.
+                </p>
+              </article>
+
+              <article class="feature-card">
+                <span
+                  class="feature-card-icon"
+                  aria-hidden="true"
+                >
+                  ✎
+                </span>
+
+                <strong>Notizen erstellen</strong>
+
+                <p>
+                  Gedanken und Erkenntnisse direkt mit
+                  den passenden Quellen verbinden.
+                </p>
+              </article>
+
+              <article class="feature-card">
+                <span
+                  class="feature-card-icon"
+                  aria-hidden="true"
+                >
+                  ◇
+                </span>
+
+                <strong>Zusammenhänge erkennen</strong>
+
+                <p>
+                  Personen, Unternehmen, Orte und
+                  Ereignisse strukturiert verknüpfen.
+                </p>
+              </article>
+
+            </div>
+          </div>
+        </section>
+      </main>
+
+    </div>
+  </div>
 </body>
 </html>
