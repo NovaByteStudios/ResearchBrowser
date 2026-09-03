@@ -11,7 +11,7 @@ let mainWindow = null;
 let browserView = null;
 
 const SIDEBAR_WIDTH = 220;
-const TOP_AREA_HEIGHT = 98;
+const TOP_AREA_HEIGHT = 101;
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
@@ -56,8 +56,31 @@ function createBrowserView() {
   });
 
   mainWindow.contentView.addChildView(browserView);
-
   updateBrowserViewBounds();
+
+  browserView.webContents.on("did-start-loading", () => {
+    sendLoadingState(true);
+  });
+
+  browserView.webContents.on("did-stop-loading", () => {
+    sendLoadingState(false);
+    sendPageInformation();
+  });
+
+  browserView.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription) => {
+      sendLoadingState(false);
+
+      if (errorCode !== -3) {
+        console.error(
+          "Ladevorgang fehlgeschlagen:",
+          errorCode,
+          errorDescription
+        );
+      }
+    }
+  );
 
   browserView.webContents.on("did-navigate", () => {
     sendPageInformation();
@@ -77,7 +100,10 @@ function createBrowserView() {
 
   browserView.webContents.setWindowOpenHandler(({ url }) => {
     browserView.webContents.loadURL(url).catch((error) => {
-      console.error("Neue Seite konnte nicht geladen werden:", error);
+      console.error(
+        "Neue Seite konnte nicht geladen werden:",
+        error
+      );
     });
 
     return {
@@ -91,13 +117,20 @@ function updateBrowserViewBounds() {
     return;
   }
 
-  const [windowWidth, windowHeight] = mainWindow.getContentSize();
+  const [windowWidth, windowHeight] =
+    mainWindow.getContentSize();
 
   browserView.setBounds({
     x: SIDEBAR_WIDTH,
     y: TOP_AREA_HEIGHT,
-    width: Math.max(0, windowWidth - SIDEBAR_WIDTH),
-    height: Math.max(0, windowHeight - TOP_AREA_HEIGHT)
+    width: Math.max(
+      0,
+      windowWidth - SIDEBAR_WIDTH
+    ),
+    height: Math.max(
+      0,
+      windowHeight - TOP_AREA_HEIGHT
+    )
   });
 }
 
@@ -123,9 +156,24 @@ function convertInputToUrl(input) {
     return "https://" + cleanedInput;
   }
 
-  const encodedSearch = encodeURIComponent(cleanedInput);
+  const encodedSearch =
+    encodeURIComponent(cleanedInput);
 
-  return "https://www.google.com/search?q=" + encodedSearch;
+  return (
+    "https://www.google.com/search?q=" +
+    encodedSearch
+  );
+}
+
+function sendLoadingState(isLoading) {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  mainWindow.webContents.send(
+    "browser:loading-changed",
+    isLoading
+  );
 }
 
 function sendPageInformation() {
@@ -140,29 +188,42 @@ function sendPageInformation() {
   const navigationHistory =
     browserView.webContents.navigationHistory;
 
-  mainWindow.webContents.send("browser:page-updated", {
-    title: browserView.webContents.getTitle(),
-    url: browserView.webContents.getURL(),
-    canGoBack: navigationHistory.canGoBack(),
-    canGoForward: navigationHistory.canGoForward()
-  });
+  mainWindow.webContents.send(
+    "browser:page-updated",
+    {
+      title: browserView.webContents.getTitle(),
+      url: browserView.webContents.getURL(),
+      canGoBack: navigationHistory.canGoBack(),
+      canGoForward: navigationHistory.canGoForward()
+    }
+  );
 }
 
-ipcMain.on("browser:navigate", (_event, input) => {
-  const url = convertInputToUrl(input);
+ipcMain.on(
+  "browser:navigate",
+  (_event, input) => {
+    const url = convertInputToUrl(input);
 
-  if (!url) {
-    return;
+    if (!url) {
+      return;
+    }
+
+    console.log("Lade Webseite:", url);
+
+    createBrowserView();
+
+    browserView.webContents
+      .loadURL(url)
+      .catch((error) => {
+        sendLoadingState(false);
+
+        console.error(
+          "Webseite konnte nicht geladen werden:",
+          error
+        );
+      });
   }
-
-  console.log("Lade Webseite:", url);
-
-  createBrowserView();
-
-  browserView.webContents.loadURL(url).catch((error) => {
-    console.error("Webseite konnte nicht geladen werden:", error);
-  });
-});
+);
 
 ipcMain.on("browser:back", () => {
   if (!browserView) {
@@ -200,7 +261,9 @@ app.whenReady().then(() => {
   createMainWindow();
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (
+      BrowserWindow.getAllWindows().length === 0
+    ) {
       createMainWindow();
     }
   });

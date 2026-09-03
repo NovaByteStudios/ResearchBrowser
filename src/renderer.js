@@ -6,6 +6,7 @@ const forwardButton = document.querySelector('[data-action="forward"]');
 const reloadButton = document.querySelector('[data-action="reload"]');
 
 const tabTitle = document.querySelector(".tab-title");
+const loadingBar = document.querySelector(".loading-bar");
 
 function navigate(input) {
   const cleanedInput = input.trim();
@@ -54,4 +55,24 @@ window.browserAPI.onPageUpdated((pageData) => {
 
   backButton.disabled = !pageData.canGoBack;
   forwardButton.disabled = !pageData.canGoForward;
+});
+window.browserAPI.onLoadingChanged((isLoading) => {
+  loadingBar.classList.toggle("active", isLoading);
+  reloadButton.classList.toggle("loading", isLoading);
+
+  if (isLoading) {
+    reloadButton.setAttribute(
+      "aria-label",
+      "Webseite wird geladen"
+    );
+
+    reloadButton.title = "Webseite wird geladen";
+  } else {
+    reloadButton.setAttribute(
+      "aria-label",
+      "Neu laden"
+    );
+
+    reloadButton.title = "Neu laden";
+  }
 });

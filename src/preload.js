@@ -18,8 +18,20 @@ contextBridge.exposeInMainWorld("browserAPI", {
   },
 
   onPageUpdated: (callback) => {
-    ipcRenderer.on("browser:page-updated", (_event, pageData) => {
-      callback(pageData);
-    });
+    ipcRenderer.on(
+      "browser:page-updated",
+      (_event, pageData) => {
+        callback(pageData);
+      }
+    );
+  },
+
+  onLoadingChanged: (callback) => {
+    ipcRenderer.on(
+      "browser:loading-changed",
+      (_event, isLoading) => {
+        callback(isLoading);
+      }
+    );
   }
 });
