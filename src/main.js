@@ -8,7 +8,11 @@ const {
 const path = require("path");
 
 let mainWindow = null;
-let browserView = null;
+
+const tabs = new Map();
+
+let activeTabId = null;
+let nextTabId = 1;
 
 const SIDEBAR_WIDTH = 220;
 const TOP_AREA_HEIGHT = 101;
@@ -30,24 +34,39 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, "index.html"));
+  mainWindow.loadFile(
+    path.join(__dirname, "index.html")
+  );
+
+  mainWindow.webContents.on(
+    "did-finish-load",
+    () => {
+      if (tabs.size === 0) {
+        createTab();
+      } else {
+        sendTabsUpdated();
+      }
+    }
+  );
 
   mainWindow.on("resize", () => {
-    updateBrowserViewBounds();
+    updateActiveTabBounds();
   });
 
   mainWindow.on("closed", () => {
+    closeAllTabs();
+
     mainWindow = null;
-    browserView = null;
+    activeTabId = null;
   });
 }
 
-function createBrowserView() {
-  if (!mainWindow || browserView) {
-    return;
-  }
+function createTab() {
+  const tabId = nextTabId;
 
-  browserView = new WebContentsView({
+  nextTabId += 1;
+
+  const browserView = new WebContentsView({
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -55,22 +74,63 @@ function createBrowserView() {
     }
   });
 
-  mainWindow.contentView.addChildView(browserView);
-  updateBrowserViewBounds();
+  browserView.setBackgroundColor("#0b0d12");
 
-  browserView.webContents.on("did-start-loading", () => {
-    sendLoadingState(true);
+  const tab = {
+    id: tabId,
+    title: "Neuer Tab",
+    url: "",
+    isLoading: false,
+    view: browserView
+  };
+
+  tabs.set(tabId, tab);
+
+  registerTabEvents(tab);
+  switchToTab(tabId);
+  sendTabsUpdated();
+
+  return tab;
+}
+
+function registerTabEvents(tab) {
+  const webContents = tab.view.webContents;
+
+  webContents.on("did-start-loading", () => {
+    tab.isLoading = true;
+
+    if (tab.id === activeTabId) {
+      sendLoadingState(true);
+    }
+
+    sendTabsUpdated();
   });
 
-  browserView.webContents.on("did-stop-loading", () => {
-    sendLoadingState(false);
-    sendPageInformation();
-  });
+  webContents.on("did-stop-loading", () => {
+    tab.isLoading = false;
 
-  browserView.webContents.on(
-    "did-fail-load",
-    (_event, errorCode, errorDescription) => {
+    updateTabInformation(tab);
+
+    if (tab.id === activeTabId) {
       sendLoadingState(false);
+      sendPageInformation(tab);
+    }
+
+    sendTabsUpdated();
+  });
+
+  webContents.on(
+    "did-fail-load",
+    (
+      _event,
+      errorCode,
+      errorDescription
+    ) => {
+      tab.isLoading = false;
+
+      if (tab.id === activeTabId) {
+        sendLoadingState(false);
+      }
 
       if (errorCode !== -3) {
         console.error(
@@ -79,54 +139,187 @@ function createBrowserView() {
           errorDescription
         );
       }
+
+      sendTabsUpdated();
     }
   );
 
-  browserView.webContents.on("did-navigate", () => {
-    sendPageInformation();
+  webContents.on("did-navigate", () => {
+    updateTabInformation(tab);
+
+    if (tab.id === activeTabId) {
+      sendPageInformation(tab);
+    }
+
+    sendTabsUpdated();
   });
 
-  browserView.webContents.on("did-navigate-in-page", () => {
-    sendPageInformation();
-  });
+  webContents.on(
+    "did-navigate-in-page",
+    () => {
+      updateTabInformation(tab);
 
-  browserView.webContents.on("page-title-updated", () => {
-    sendPageInformation();
-  });
+      if (tab.id === activeTabId) {
+        sendPageInformation(tab);
+      }
 
-  browserView.webContents.on("did-finish-load", () => {
-    sendPageInformation();
-  });
+      sendTabsUpdated();
+    }
+  );
 
-  browserView.webContents.setWindowOpenHandler(({ url }) => {
-    browserView.webContents.loadURL(url).catch((error) => {
-      console.error(
-        "Neue Seite konnte nicht geladen werden:",
-        error
-      );
-    });
+  webContents.on(
+    "page-title-updated",
+    (_event, title) => {
+      tab.title = title || "Neuer Tab";
 
-    return {
-      action: "deny"
-    };
-  });
+      if (tab.id === activeTabId) {
+        sendPageInformation(tab);
+      }
+
+      sendTabsUpdated();
+    }
+  );
+
+  webContents.setWindowOpenHandler(
+    ({ url }) => {
+      const newTab = createTab();
+
+      loadUrlInTab(newTab, url);
+
+      return {
+        action: "deny"
+      };
+    }
+  );
 }
 
-function updateBrowserViewBounds() {
-  if (!mainWindow || !browserView) {
+function updateTabInformation(tab) {
+  if (!tab || tab.view.webContents.isDestroyed()) {
+    return;
+  }
+
+  const webContents = tab.view.webContents;
+
+  tab.url = webContents.getURL();
+  tab.title =
+    webContents.getTitle() || "Neuer Tab";
+}
+
+function switchToTab(tabId) {
+  const numericTabId = Number(tabId);
+  const nextTab = tabs.get(numericTabId);
+
+  if (!mainWindow || !nextTab) {
+    return;
+  }
+
+  const previousTab = tabs.get(activeTabId);
+
+  if (previousTab) {
+    mainWindow.contentView.removeChildView(
+      previousTab.view
+    );
+  }
+
+  activeTabId = numericTabId;
+
+  if (nextTab.url !== "") {
+    mainWindow.contentView.addChildView(
+      nextTab.view
+    );
+
+    updateActiveTabBounds();
+  }
+
+  sendTabsUpdated();
+  sendPageInformation(nextTab);
+  sendLoadingState(nextTab.isLoading);
+}
+
+function closeTab(tabId) {
+  const numericTabId = Number(tabId);
+  const tab = tabs.get(numericTabId);
+
+  if (!tab) {
+    return;
+  }
+
+  const wasActive = numericTabId === activeTabId;
+  const tabIds = Array.from(tabs.keys());
+  const closingIndex =
+    tabIds.indexOf(numericTabId);
+
+  if (mainWindow) {
+    mainWindow.contentView.removeChildView(
+      tab.view
+    );
+  }
+
+  if (!tab.view.webContents.isDestroyed()) {
+    tab.view.webContents.close();
+  }
+
+  tabs.delete(numericTabId);
+
+  if (tabs.size === 0) {
+    activeTabId = null;
+    createTab();
+    return;
+  }
+
+  if (wasActive) {
+    const remainingTabIds =
+      Array.from(tabs.keys());
+
+    const nextIndex = Math.min(
+      closingIndex,
+      remainingTabIds.length - 1
+    );
+
+    switchToTab(
+      remainingTabIds[nextIndex]
+    );
+  } else {
+    sendTabsUpdated();
+  }
+}
+
+function closeAllTabs() {
+  for (const tab of tabs.values()) {
+    if (
+      tab.view &&
+      !tab.view.webContents.isDestroyed()
+    ) {
+      tab.view.webContents.close();
+    }
+  }
+
+  tabs.clear();
+}
+
+function updateActiveTabBounds() {
+  if (!mainWindow || activeTabId === null) {
+    return;
+  }
+
+  const activeTab = tabs.get(activeTabId);
+
+  if (!activeTab || activeTab.url === "") {
     return;
   }
 
   const [windowWidth, windowHeight] =
     mainWindow.getContentSize();
 
-  browserView.setBounds({
+  activeTab.view.setBounds({
     x: SIDEBAR_WIDTH,
     y: TOP_AREA_HEIGHT,
+
     width: Math.max(
       0,
       windowWidth - SIDEBAR_WIDTH
     ),
+
     height: Math.max(
       0,
       windowHeight - TOP_AREA_HEIGHT
@@ -134,8 +327,26 @@ function updateBrowserViewBounds() {
   });
 }
 
+function showTabView(tab) {
+  if (!mainWindow || !tab) {
+    return;
+  }
+
+  const currentChildren =
+    mainWindow.contentView.children;
+
+  if (!currentChildren.includes(tab.view)) {
+    mainWindow.contentView.addChildView(
+      tab.view
+    );
+  }
+
+  updateActiveTabBounds();
+}
+
 function convertInputToUrl(input) {
-  const cleanedInput = String(input).trim();
+  const cleanedInput =
+    String(input).trim();
 
   if (cleanedInput === "") {
     return null;
@@ -165,6 +376,40 @@ function convertInputToUrl(input) {
   );
 }
 
+function loadUrlInTab(tab, url) {
+  if (!tab || !url) {
+    return;
+  }
+
+  tab.url = url;
+
+  if (tab.id === activeTabId) {
+    showTabView(tab);
+  }
+
+  console.log(
+    "Tab",
+    tab.id,
+    "lädt:",
+    url
+  );
+
+  tab.view.webContents
+    .loadURL(url)
+    .catch((error) => {
+      tab.isLoading = false;
+
+      if (tab.id === activeTabId) {
+        sendLoadingState(false);
+      }
+
+      console.error(
+        "Webseite konnte nicht geladen werden:",
+        error
+      );
+    });
+}
+
 function sendLoadingState(isLoading) {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return;
@@ -172,66 +417,124 @@ function sendLoadingState(isLoading) {
 
   mainWindow.webContents.send(
     "browser:loading-changed",
-    isLoading
+    Boolean(isLoading)
   );
 }
 
-function sendPageInformation() {
-  if (!mainWindow || !browserView) {
+function sendPageInformation(tab) {
+  if (!mainWindow || mainWindow.isDestroyed()) {
     return;
   }
 
-  if (mainWindow.isDestroyed()) {
+  if (!tab) {
     return;
   }
 
-  const navigationHistory =
-    browserView.webContents.navigationHistory;
+  const webContents = tab.view.webContents;
+  const hasPage =
+    tab.url !== "" &&
+    !webContents.isDestroyed();
+
+  let canGoBack = false;
+  let canGoForward = false;
+
+  if (hasPage) {
+    const navigationHistory =
+      webContents.navigationHistory;
+
+    canGoBack =
+      navigationHistory.canGoBack();
+
+    canGoForward =
+      navigationHistory.canGoForward();
+  }
 
   mainWindow.webContents.send(
     "browser:page-updated",
     {
-      title: browserView.webContents.getTitle(),
-      url: browserView.webContents.getURL(),
-      canGoBack: navigationHistory.canGoBack(),
-      canGoForward: navigationHistory.canGoForward()
+      tabId: tab.id,
+      title: tab.title,
+      url: tab.url,
+      hasPage,
+      canGoBack,
+      canGoForward
     }
   );
 }
 
+function sendTabsUpdated() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  const tabList = Array.from(
+    tabs.values()
+  ).map((tab) => {
+    return {
+      id: tab.id,
+      title: tab.title,
+      url: tab.url,
+      isLoading: tab.isLoading,
+      isActive: tab.id === activeTabId
+    };
+  });
+
+  mainWindow.webContents.send(
+    "tabs:updated",
+    {
+      tabs: tabList,
+      activeTabId
+    }
+  );
+}
+
+ipcMain.on("tabs:create", () => {
+  createTab();
+});
+
+ipcMain.on(
+  "tabs:switch",
+  (_event, tabId) => {
+    switchToTab(tabId);
+  }
+);
+
+ipcMain.on(
+  "tabs:close",
+  (_event, tabId) => {
+    closeTab(tabId);
+  }
+);
+
 ipcMain.on(
   "browser:navigate",
   (_event, input) => {
+    let activeTab = tabs.get(activeTabId);
+
+    if (!activeTab) {
+      activeTab = createTab();
+    }
+
     const url = convertInputToUrl(input);
 
     if (!url) {
       return;
     }
 
-    console.log("Lade Webseite:", url);
-
-    createBrowserView();
-
-    browserView.webContents
-      .loadURL(url)
-      .catch((error) => {
-        sendLoadingState(false);
-
-        console.error(
-          "Webseite konnte nicht geladen werden:",
-          error
-        );
-      });
+    loadUrlInTab(activeTab, url);
   }
 );
 
 ipcMain.on("browser:back", () => {
-  if (!browserView) {
+  const activeTab = tabs.get(activeTabId);
+
+  if (!activeTab || activeTab.url === "") {
     return;
   }
 
   const navigationHistory =
-    browserView.webContents.navigationHistory;
+    activeTab.view.webContents
+      .navigationHistory;
 
   if (navigationHistory.canGoBack()) {
     navigationHistory.goBack();
@@ -239,12 +542,15 @@ ipcMain.on("browser:back", () => {
 });
 
 ipcMain.on("browser:forward", () => {
-  if (!browserView) {
+  const activeTab = tabs.get(activeTabId);
+
+  if (!activeTab || activeTab.url === "") {
     return;
   }
 
   const navigationHistory =
-    browserView.webContents.navigationHistory;
+    activeTab.view.webContents
+      .navigationHistory;
 
   if (navigationHistory.canGoForward()) {
     navigationHistory.goForward();
@@ -252,8 +558,10 @@ ipcMain.on("browser:forward", () => {
 });
 
 ipcMain.on("browser:reload", () => {
-  if (browserView) {
-    browserView.webContents.reload();
+  const activeTab = tabs.get(activeTabId);
+
+  if (activeTab && activeTab.url !== "") {
+    activeTab.view.webContents.reload();
   }
 });
 
@@ -262,7 +570,8 @@ app.whenReady().then(() => {
 
   app.on("activate", () => {
     if (
-      BrowserWindow.getAllWindows().length === 0
+      BrowserWindow.getAllWindows()
+        .length === 0
     ) {
       createMainWindow();
     }

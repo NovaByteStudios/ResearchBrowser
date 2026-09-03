@@ -1,6 +1,21 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("browserAPI", {
+  createTab: () => {
+
+ ipcRenderer.send("tabs:create");
+
+  },
+  switchTab: (tabId) => {
+
+ ipcRenderer.send("tabs:switch", tabId);
+
+  },
+  closeTab: (tabId) => {
+
+ ipcRenderer.send("tabs:close", tabId);
+
+  },
   navigate: (input) => {
     ipcRenderer.send("browser:navigate", input);
   },
@@ -33,5 +48,14 @@ contextBridge.exposeInMainWorld("browserAPI", {
         callback(isLoading);
       }
     );
+  },
+  onTabsUpdated: (callback) => {
+
+  ipcRenderer.on("tabs:updated", (_event, tabData) => {
+
+  callback(tabData);
+
+  });
+
   }
 });

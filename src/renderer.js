@@ -1,12 +1,28 @@
-const addressBar = document.querySelector(".address-bar");
-const startSearchInput = document.querySelector(".search-box input");
+const addressBar =
+  document.querySelector(".address-bar");
 
-const backButton = document.querySelector('[data-action="back"]');
-const forwardButton = document.querySelector('[data-action="forward"]');
-const reloadButton = document.querySelector('[data-action="reload"]');
+const startSearchInput =
+  document.querySelector(".search-box input");
 
-const tabTitle = document.querySelector(".tab-title");
-const loadingBar = document.querySelector(".loading-bar");
+const backButton =
+  document.querySelector('[data-action="back"]');
+
+const forwardButton =
+  document.querySelector('[data-action="forward"]');
+
+const reloadButton =
+  document.querySelector('[data-action="reload"]');
+
+const loadingBar =
+  document.querySelector(".loading-bar");
+
+const tabsContainer =
+  document.querySelector("#tabs-container");
+
+const newTabButton =
+  document.querySelector("#new-tab-button");
+
+let activeTabId = null;
 
 function navigate(input) {
   const cleanedInput = input.trim();
@@ -18,61 +34,229 @@ function navigate(input) {
   window.browserAPI.navigate(cleanedInput);
 }
 
-addressBar.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    navigate(addressBar.value);
-  }
-});
+function createTabElement(tab) {
+  const tabElement =
+    document.createElement("div");
 
-startSearchInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    addressBar.value = startSearchInput.value;
-    navigate(startSearchInput.value);
-  }
-});
+  tabElement.className = "tab";
+  tabElement.dataset.tabId = tab.id;
+  tabElement.setAttribute("role", "tab");
 
-backButton.addEventListener("click", () => {
-  window.browserAPI.goBack();
-});
-
-forwardButton.addEventListener("click", () => {
-  window.browserAPI.goForward();
-});
-
-reloadButton.addEventListener("click", () => {
-  window.browserAPI.reload();
-});
-
-window.browserAPI.onPageUpdated((pageData) => {
-  if (pageData.url) {
-    addressBar.value = pageData.url;
-  }
-
-  if (pageData.title) {
-    tabTitle.textContent = pageData.title;
-    document.title = `${pageData.title} - Research Browser`;
-  }
-
-  backButton.disabled = !pageData.canGoBack;
-  forwardButton.disabled = !pageData.canGoForward;
-});
-window.browserAPI.onLoadingChanged((isLoading) => {
-  loadingBar.classList.toggle("active", isLoading);
-  reloadButton.classList.toggle("loading", isLoading);
-
-  if (isLoading) {
-    reloadButton.setAttribute(
-      "aria-label",
-      "Webseite wird geladen"
+  if (tab.isActive) {
+    tabElement.classList.add("active");
+    tabElement.setAttribute(
+      "aria-selected",
+      "true"
     );
-
-    reloadButton.title = "Webseite wird geladen";
   } else {
-    reloadButton.setAttribute(
-      "aria-label",
-      "Neu laden"
+    tabElement.setAttribute(
+      "aria-selected",
+      "false"
+    );
+  }
+
+  const tabIcon =
+    document.createElement("span");
+
+  tabIcon.className = "tab-icon";
+
+  if (tab.isLoading) {
+    tabIcon.textContent = "↻";
+    tabIcon.classList.add("loading");
+  } else if (tab.url === "") {
+    tabIcon.textContent = "⌂";
+  } else {
+    tabIcon.textContent = "◉";
+  }
+
+  const tabTitle =
+    document.createElement("span");
+
+  tabTitle.className = "tab-title";
+  tabTitle.textContent =
+    tab.title || "Neuer Tab";
+
+  const closeButton =
+    document.createElement("button");
+
+  closeButton.className = "tab-close";
+  closeButton.type = "button";
+  closeButton.textContent = "×";
+  closeButton.title = "Tab schließen";
+
+  closeButton.setAttribute(
+    "aria-label",
+    "Tab schließen"
+  );
+
+  tabElement.appendChild(tabIcon);
+  tabElement.appendChild(tabTitle);
+  tabElement.appendChild(closeButton);
+
+  tabElement.addEventListener(
+    "click",
+    () => {
+      window.browserAPI.switchTab(tab.id);
+    }
+  );
+
+  closeButton.addEventListener(
+    "click",
+    (event) => {
+      event.stopPropagation();
+
+      window.browserAPI.closeTab(tab.id);
+    }
+  );
+
+  return tabElement;
+}
+
+function renderTabs(tabData) {
+  activeTabId = tabData.activeTabId;
+
+  tabsContainer.replaceChildren();
+
+  for (const tab of tabData.tabs) {
+    const tabElement =
+      createTabElement(tab);
+
+    tabsContainer.appendChild(tabElement);
+  }
+
+  const activeTabElement =
+    tabsContainer.querySelector(".tab.active");
+
+  if (activeTabElement) {
+    activeTabElement.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest"
+    });
+  }
+}
+
+addressBar.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      navigate(addressBar.value);
+    }
+  }
+);
+
+addressBar.addEventListener(
+  "focus",
+  () => {
+    addressBar.select();
+  }
+);
+
+startSearchInput.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      const input =
+        startSearchInput.value.trim();
+
+      if (input === "") {
+        return;
+      }
+
+      addressBar.value = input;
+      navigate(input);
+    }
+  }
+);
+
+backButton.addEventListener(
+  "click",
+  () => {
+    window.browserAPI.goBack();
+  }
+);
+
+forwardButton.addEventListener(
+  "click",
+  () => {
+    window.browserAPI.goForward();
+  }
+);
+
+reloadButton.addEventListener(
+  "click",
+  () => {
+    window.browserAPI.reload();
+  }
+);
+
+newTabButton.addEventListener(
+  "click",
+  () => {
+    window.browserAPI.createTab();
+  }
+);
+
+window.browserAPI.onPageUpdated(
+  (pageData) => {
+    if (pageData.tabId !== activeTabId) {
+      return;
+    }
+
+    addressBar.value = pageData.url || "";
+
+    const pageTitle =
+      pageData.title || "Neuer Tab";
+
+    document.title =
+      pageTitle + " - Research Browser";
+
+    backButton.disabled =
+      !pageData.canGoBack;
+
+    forwardButton.disabled =
+      !pageData.canGoForward;
+
+    if (!pageData.hasPage) {
+      startSearchInput.value = "";
+      startSearchInput.focus();
+    }
+  }
+);
+
+window.browserAPI.onLoadingChanged(
+  (isLoading) => {
+    loadingBar.classList.toggle(
+      "active",
+      isLoading
     );
 
-    reloadButton.title = "Neu laden";
+    reloadButton.classList.toggle(
+      "loading",
+      isLoading
+    );
+
+    if (isLoading) {
+      reloadButton.setAttribute(
+        "aria-label",
+        "Webseite wird geladen"
+      );
+
+      reloadButton.title =
+        "Webseite wird geladen";
+    } else {
+      reloadButton.setAttribute(
+        "aria-label",
+        "Neu laden"
+      );
+
+      reloadButton.title = "Neu laden";
+    }
   }
-});
+);
+
+window.browserAPI.onTabsUpdated(
+  (tabData) => {
+    renderTabs(tabData);
+  }
+);

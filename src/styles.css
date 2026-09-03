@@ -56,12 +56,35 @@ input {
   background: #090b0f;
   border-bottom: 1px solid var(--border);
 }
+/* Container für mehrere Tabs */
 
+.tabs-container {
+
+ display: flex;
+
+ align-items: flex-end;
+
+ gap: 6px;
+
+ min-width: 0;
+
+ overflow-x: auto;
+
+ overflow-y: hidden;
+
+}
+.tabs-container::-webkit-scrollbar {
+
+ display: none;
+
+}
 .tab {
   display: flex;
   align-items: center;
   gap: 9px;
   width: 240px;
+  min-width: 150px;
+  flex-shrink: 1;
   height: 37px;
   padding: 0 12px;
   color: var(--text-muted);
@@ -109,6 +132,7 @@ input {
 }
 
 .new-tab-button {
+  flex-shrink: 0;
   display: grid;
   width: 32px;
   height: 32px;
@@ -516,6 +540,20 @@ input {
 }
 
 @keyframes loading-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+.tab-icon.loading {
+  color: var(--accent-hover);
+  animation: tab-loading-spin 900ms linear infinite;
+}
+
+@keyframes tab-loading-spin {
   from {
     transform: rotate(0deg);
   }
