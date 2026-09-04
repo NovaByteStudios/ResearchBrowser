@@ -14,6 +14,8 @@ const tabs = new Map();
 
 let activeTabId = null;
 let nextTabId = 1;
+let activeWorkspace = null;
+let currentScreen = "workspace";
 
 const SIDEBAR_WIDTH = 220;
 const TOP_AREA_HEIGHT = 101;
@@ -36,17 +38,23 @@ function createMainWindow() {
   });
 
   mainWindow.loadFile(
-    path.join(__dirname, "index.html")
+    path.join(__dirname, "workspace.html")
   );
 
   mainWindow.webContents.on(
     "did-finish-load",
     () => {
+      if (currentScreen !== "browser") {
+        return;
+      }
+
       if (tabs.size === 0) {
         createTab();
       } else {
         sendTabsUpdated();
       }
+
+      sendActiveWorkspace();
     }
   );
 
@@ -59,10 +67,16 @@ function createMainWindow() {
 
     mainWindow = null;
     activeTabId = null;
+    activeWorkspace = null;
+    currentScreen = "workspace";
   });
 }
 
 function createTab() {
+  if (currentScreen !== "browser") {
+    return null;
+  }
+
   const tabId = nextTabId;
 
   nextTabId += 1;
@@ -185,7 +199,9 @@ function registerTabEvents(tab) {
     ({ url }) => {
       const newTab = createTab();
 
-      loadUrlInTab(newTab, url);
+      if (newTab) {
+        loadUrlInTab(newTab, url);
+      }
 
       return {
         action: "deny"
@@ -411,6 +427,21 @@ function loadUrlInTab(tab, url) {
     });
 }
 
+function sendActiveWorkspace() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  if (!activeWorkspace) {
+    return;
+  }
+
+  mainWindow.webContents.send(
+    "workspace:active",
+    activeWorkspace
+  );
+}
+
 function sendLoadingState(isLoading) {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return;
@@ -489,6 +520,33 @@ function sendTabsUpdated() {
   );
 }
 
+ipcMain.on(
+  "workspace:open",
+  (_event, workspace) => {
+    if (
+      !workspace ||
+      !workspace.id ||
+      !workspace.name ||
+      !mainWindow
+    ) {
+      return;
+    }
+
+    activeWorkspace = {
+      id: String(workspace.id),
+      name: String(workspace.name)
+    };
+
+    closeAllTabs();
+    activeTabId = null;
+    currentScreen = "browser";
+
+    mainWindow.loadFile(
+      path.join(__dirname, "index.html")
+    );
+  }
+);
+
 ipcMain.on("tabs:create", () => {
   createTab();
 });
@@ -514,6 +572,10 @@ ipcMain.on(
 
     if (!activeTab) {
       activeTab = createTab();
+    }
+
+    if (!activeTab) {
+      return;
     }
 
     const url = convertInputToUrl(input);
@@ -721,7 +783,7 @@ function createApplicationMenu() {
 
 app.whenReady().then(() => {
   createMainWindow();
-    createApplicationMenu();
+  createApplicationMenu();
 
   app.on("activate", () => {
     if (

@@ -1,6 +1,9 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("browserAPI", {
+  openWorkspace: (workspace) => {
+    ipcRenderer.send("workspace:open", workspace);
+  },
   createTab: () => {
 
  ipcRenderer.send("tabs:create");
@@ -62,5 +65,5 @@ contextBridge.exposeInMainWorld("browserAPI", {
     ipcRenderer.on("browser:focus-address-bar", () => {
       callback();
     });
-  }
+  },
 });

@@ -23,7 +23,33 @@ const newTabButton =
   document.querySelector("#new-tab-button");
 
 let activeTabId = null;
+const activeWorkspaceName =
+  document.querySelector(".workspace-name strong");
+const savedActiveWorkspace =
+  localStorage.getItem(
+    "research-browser-active-workspace"
+  );
 
+if (savedActiveWorkspace) {
+  try {
+    const activeWorkspace =
+      JSON.parse(savedActiveWorkspace);
+
+    if (
+      activeWorkspace &&
+      activeWorkspace.name &&
+      activeWorkspaceName
+    ) {
+      activeWorkspaceName.textContent =
+        activeWorkspace.name;
+    }
+  } catch (error) {
+    console.error(
+      "Aktiver Workspace konnte nicht gelesen werden:",
+      error
+    );
+  }
+}
 function navigate(input) {
   const cleanedInput = input.trim();
 
@@ -285,5 +311,15 @@ window.browserAPI.onFocusAddressBar(
   () => {
     addressBar.focus();
     addressBar.select();
+  }
+);
+window.browserAPI.onActiveWorkspaceChanged(
+  (workspace) => {
+    if (!workspace || !workspace.name) {
+      return;
+    }
+
+    activeWorkspaceName.textContent =
+      workspace.name;
   }
 );

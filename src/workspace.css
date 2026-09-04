@@ -1,0 +1,262 @@
+:root {
+  color-scheme: dark;
+  --background: #0b0d12;
+  --surface-light: #181c25;
+  --surface-hover: #202632;
+  --border: #2a303c;
+  --text: #f4f6fa;
+  --text-muted: #929aaa;
+  --accent: #5b8cff;
+  --accent-hover: #76a0ff;
+  --accent-soft: rgba(91, 140, 255, 0.16);
+  --danger: #ff7b72;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at 50% 15%, rgba(91, 140, 255, 0.16), transparent 38%),
+    var(--background);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.workspace-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 48px 24px;
+}
+
+.workspace-content {
+  width: min(580px, 100%);
+  text-align: center;
+}
+
+.workspace-logo {
+  display: grid;
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 22px;
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #78a4ff, #446fe0);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 22px;
+  box-shadow: 0 16px 45px rgba(53, 94, 190, 0.35);
+  place-items: center;
+}
+
+.workspace-content h1 {
+  margin: 0;
+  font-size: 42px;
+  letter-spacing: -0.04em;
+}
+
+.workspace-description {
+  margin: 12px 0 32px;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workspace-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 80px;
+  padding: 15px 18px;
+  color: var(--text);
+  text-align: left;
+  background: rgba(24, 28, 37, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.workspace-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.workspace-card-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  font-size: 21px;
+  background: var(--accent-soft);
+  border-radius: 13px;
+  place-items: center;
+}
+
+.workspace-card-information {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.workspace-card-information strong,
+.workspace-card-information small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-card-information strong {
+  font-size: 15px;
+}
+
+.workspace-card-information small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.workspace-card-arrow {
+  color: var(--text-muted);
+  font-size: 20px;
+}
+
+.workspace-card-new {
+  background: rgba(17, 20, 27, 0.72);
+  border-style: dashed;
+}
+
+.workspace-card-new .workspace-card-icon {
+  color: var(--accent-hover);
+  font-size: 25px;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  padding: 24px;
+  background: rgba(4, 6, 10, 0.76);
+  backdrop-filter: blur(8px);
+  place-items: center;
+}
+
+.dialog {
+  width: min(460px, 100%);
+  padding: 24px;
+  text-align: left;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.dialog h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.dialog p {
+  margin: 0 0 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dialog label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dialog input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  color: var(--text);
+  background: #0d1016;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+
+.dialog input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.dialog .dialog-error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.dialog-button {
+  height: 38px;
+  padding: 0 15px;
+  color: var(--text);
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.dialog-button.secondary {
+  background: var(--surface-hover);
+}
+
+.dialog-button.primary {
+  color: white;
+  font-weight: 700;
+  background: var(--accent);
+}
+
+.dialog-button.primary:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 600px) {
+  .workspace-screen {
+    padding: 30px 16px;
+  }
+
+  .workspace-content h1 {
+    font-size: 34px;
+  }
+}

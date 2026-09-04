@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace auswählen - Research Browser</title>
+  <link rel="stylesheet" href="workspace.css">
+</head>
+<body>
+  <main class="workspace-screen">
+    <section class="workspace-content">
+      <div class="workspace-logo">R</div>
+      <h1>Research Browser</h1>
+      <p class="workspace-description">
+        Wähle einen Workspace aus oder erstelle einen neuen.
+      </p>
+
+      <div id="workspace-list" class="workspace-list">
+        <button
+          class="workspace-card"
+          type="button"
+          data-workspace-id="workspace-1"
+          data-workspace-name="Fall Recherche"
+        >
+          <span class="workspace-card-icon">🔎</span>
+          <span class="workspace-card-information">
+            <strong>Fall Recherche</strong>
+            <small>Noch keine gespeicherten Tabs</small>
+          </span>
+          <span class="workspace-card-arrow">→</span>
+        </button>
+
+        <button
+          id="create-workspace-button"
+          class="workspace-card workspace-card-new"
+          type="button"
+        >
+          <span class="workspace-card-icon">＋</span>
+          <span class="workspace-card-information">
+            <strong>Neuer Workspace</strong>
+            <small>Neuen Recherchebereich erstellen</small>
+          </span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div id="workspace-dialog" class="dialog-backdrop hidden">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <h2 id="dialog-title">Neuen Workspace erstellen</h2>
+      <p>Gib einen Namen für den neuen Workspace ein.</p>
+
+      <label for="workspace-name-input">Workspace-Name</label>
+      <input
+        id="workspace-name-input"
+        type="text"
+        maxlength="60"
+        placeholder="Zum Beispiel: Schule"
+        autocomplete="off"
+      >
+
+      <p id="workspace-name-error" class="dialog-error hidden">
+        Bitte gib einen Namen ein.
+      </p>
+
+      <div class="dialog-actions">
+        <button id="cancel-workspace-button" class="dialog-button secondary" type="button">
+          Abbrechen
+        </button>
+        <button id="save-workspace-button" class="dialog-button primary" type="button">
+          Workspace erstellen
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="workspace.js"></script>
+</body>
+</html>
