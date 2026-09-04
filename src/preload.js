@@ -57,5 +57,10 @@ contextBridge.exposeInMainWorld("browserAPI", {
 
   });
 
+  },
+  onFocusAddressBar: (callback) => {
+    ipcRenderer.on("browser:focus-address-bar", () => {
+      callback();
+    });
   }
 });

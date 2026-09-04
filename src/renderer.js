@@ -141,6 +141,25 @@ addressBar.addEventListener(
   (event) => {
     if (event.key === "Enter") {
       navigate(addressBar.value);
+      return;
+    }
+
+    if (
+      event.metaKey &&
+      !event.shiftKey &&
+      event.key.toLowerCase() === "z"
+    ) {
+      event.preventDefault();
+      document.execCommand("undo");
+    }
+
+    if (
+      event.metaKey &&
+      event.shiftKey &&
+      event.key.toLowerCase() === "z"
+    ) {
+      event.preventDefault();
+      document.execCommand("redo");
     }
   }
 );
@@ -219,7 +238,9 @@ window.browserAPI.onPageUpdated(
 
     if (!pageData.hasPage) {
       startSearchInput.value = "";
-      startSearchInput.focus();
+      addressBar.value = "";
+      addressBar.focus();
+      addressBar.select();
     }
   }
 );
@@ -258,5 +279,11 @@ window.browserAPI.onLoadingChanged(
 window.browserAPI.onTabsUpdated(
   (tabData) => {
     renderTabs(tabData);
+  }
+);
+window.browserAPI.onFocusAddressBar(
+  () => {
+    addressBar.focus();
+    addressBar.select();
   }
 );

@@ -2,7 +2,8 @@ const {
   app,
   BrowserWindow,
   WebContentsView,
-  ipcMain
+  ipcMain,
+  Menu
 } = require("electron");
 
 const path = require("path");
@@ -565,8 +566,162 @@ ipcMain.on("browser:reload", () => {
   }
 });
 
+function createApplicationMenu() {
+  const template = [
+    {
+      label: "Research Browser",
+      submenu: [
+        {
+          role: "about",
+          label: "Über Research Browser"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "hide",
+          label: "Research Browser ausblenden"
+        },
+        {
+          role: "hideOthers",
+          label: "Andere ausblenden"
+        },
+        {
+          role: "unhide",
+          label: "Alle einblenden"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "quit",
+          label: "Research Browser beenden"
+        }
+      ]
+    },
+    {
+      label: "Datei",
+      submenu: [
+        {
+          label: "Neuer Tab",
+          accelerator: "CommandOrControl+T",
+          click: () => {
+            createTab();
+          }
+        },
+        {
+          label: "Aktiven Tab schließen",
+          accelerator: "CommandOrControl+W",
+          click: () => {
+            if (activeTabId !== null) {
+              closeTab(activeTabId);
+            }
+          }
+        }
+      ]
+    },
+    {
+      label: "Bearbeiten",
+      submenu: [
+        {
+          role: "undo",
+          label: "Widerrufen"
+        },
+        {
+          role: "redo",
+          label: "Wiederholen"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "cut",
+          label: "Ausschneiden"
+        },
+        {
+          role: "copy",
+          label: "Kopieren"
+        },
+        {
+          role: "paste",
+          label: "Einfügen"
+        },
+        {
+          role: "selectAll",
+          label: "Alles auswählen"
+        }
+      ]
+    },
+    {
+      label: "Ansicht",
+      submenu: [
+        {
+          label: "Adressleiste auswählen",
+          accelerator: "CommandOrControl+L",
+          click: () => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.focus();
+              mainWindow.webContents.send(
+                "browser:focus-address-bar"
+              );
+            }
+          }
+        },
+        {
+          label: "Seite neu laden",
+          accelerator: "CommandOrControl+R",
+          click: () => {
+            const activeTab = tabs.get(activeTabId);
+
+            if (activeTab && activeTab.url !== "") {
+              activeTab.view.webContents.reload();
+            }
+          }
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "toggleDevTools",
+          label: "Entwicklerwerkzeuge"
+        },
+        {
+          role: "togglefullscreen",
+          label: "Vollbild"
+        }
+      ]
+    },
+    {
+      label: "Fenster",
+      submenu: [
+        {
+          role: "minimize",
+          label: "Minimieren"
+        },
+        {
+          role: "zoom",
+          label: "Zoomen"
+        },
+        {
+          type: "separator"
+        },
+        {
+          role: "front",
+          label: "Alle nach vorne bringen"
+        }
+      ]
+    }
+  ];
+
+  const applicationMenu =
+    Menu.buildFromTemplate(template);
+
+  Menu.setApplicationMenu(applicationMenu);
+}
+
 app.whenReady().then(() => {
   createMainWindow();
+    createApplicationMenu();
 
   app.on("activate", () => {
     if (
