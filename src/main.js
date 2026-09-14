@@ -7,6 +7,11 @@ const {
 } = require("electron");
 
 const path = require("path");
+const {
+  initializeStorage,
+  saveWorkspaceTabs,
+  loadWorkspaceTabs
+} = require("./workspace-storage");
 
 let mainWindow = null;
 
@@ -434,6 +439,111 @@ function loadUrlInTab(tab, url) {
     });
 }
 
+function restoreCurrentWorkspaceTabs() {
+  if (!activeWorkspace) {
+    createTab();
+    return;
+  }
+
+  const workspaceState =
+    loadWorkspaceTabs(activeWorkspace.id);
+
+  const savedTabs = workspaceState.tabs;
+
+  if (
+    !Array.isArray(savedTabs) ||
+    savedTabs.length === 0
+  ) {
+    createTab();
+    return;
+  }
+
+  const restoredTabIds = [];
+
+  for (const savedTab of savedTabs) {
+    const restoredTab = createTab();
+
+    if (!restoredTab) {
+      continue;
+    }
+
+    if (savedTab.title) {
+      restoredTab.title =
+        String(savedTab.title);
+    }
+
+    restoredTabIds.push(restoredTab.id);
+
+    if (savedTab.url) {
+      loadUrlInTab(
+        restoredTab,
+        String(savedTab.url)
+      );
+    }
+  }
+
+  if (restoredTabIds.length === 0) {
+    createTab();
+    return;
+  }
+
+  const maximumIndex =
+    restoredTabIds.length - 1;
+
+  const savedActiveIndex =
+    Number.isInteger(
+      workspaceState.activeTabIndex
+    )
+      ? workspaceState.activeTabIndex
+      : 0;
+
+  const activeIndex = Math.min(
+    Math.max(savedActiveIndex, 0),
+    maximumIndex
+  );
+
+  switchToTab(
+    restoredTabIds[activeIndex]
+  );
+
+  console.log(
+    "Tabs wiederhergestellt:",
+    activeWorkspace.name,
+    restoredTabIds.length
+  );
+}
+
+function saveCurrentWorkspaceTabs() {
+  if (!activeWorkspace) {
+    return;
+  }
+
+  const tabList = Array.from(tabs.values());
+
+  const savedTabs = tabList.map((tab) => {
+    return {
+      url: tab.url,
+      title: tab.title || "Neuer Tab"
+    };
+  });
+
+  const activeTabIndex = tabList.findIndex(
+    (tab) => tab.id === activeTabId
+  );
+
+  saveWorkspaceTabs(
+    activeWorkspace.id,
+    savedTabs,
+    activeTabIndex >= 0 ? activeTabIndex : 0
+  );
+
+  console.log(
+    "Tabs gespeichert:",
+    activeWorkspace.name,
+    savedTabs.length
+  );
+}
+
 function sendActiveWorkspace() {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return;
@@ -545,8 +655,10 @@ ipcMain.on(
     };
 
     closeAllTabs();
+
     activeTabId = null;
     currentScreen = "browser";
+
     console.log(
       "Workspace geöffnet:",
       activeWorkspace.name,
@@ -554,9 +666,37 @@ ipcMain.on(
       currentScreen
     );
 
-    mainWindow.loadFile(
-      path.join(__dirname, "index.html")
-    );
+    mainWindow
+      .loadFile(
+        path.join(__dirname, "index.html")
+      )
+      .then(() => {
+        console.log(
+          "Browseroberfläche geladen:",
+          activeWorkspace.name
+        );
+
+        if (tabs.size === 0) {
+          restoreCurrentWorkspaceTabs();
+        }
+
+        sendTabsUpdated();
+
+        const activeTab = tabs.get(activeTabId);
+
+        if (activeTab) {
+          sendPageInformation(activeTab);
+          sendLoadingState(activeTab.isLoading);
+        }
+
+        sendActiveWorkspace();
+      })
+      .catch((error) => {
+        console.error(
+          "Browseroberfläche konnte nicht geladen werden:",
+          error
+        );
+      });
   }
 );
 ipcMain.on(
@@ -565,7 +705,7 @@ ipcMain.on(
     if (!mainWindow || mainWindow.isDestroyed()) {
       return;
     }
-
+    saveCurrentWorkspaceTabs();
     closeAllTabs();
 
     activeTabId = null;
@@ -582,17 +722,13 @@ ipcMain.on("browser:ui-ready", () => {
     return;
   }
 
-  if (tabs.size === 0) {
-    createTab();
-  } else {
-    sendTabsUpdated();
+  sendTabsUpdated();
 
-    const activeTab = tabs.get(activeTabId);
+  const activeTab = tabs.get(activeTabId);
 
-    if (activeTab) {
-      sendPageInformation(activeTab);
-      sendLoadingState(activeTab.isLoading);
-    }
+  if (activeTab) {
+    sendPageInformation(activeTab);
+    sendLoadingState(activeTab.isLoading);
   }
 
   sendActiveWorkspace();
@@ -833,6 +969,7 @@ function createApplicationMenu() {
 }
 
 app.whenReady().then(() => {
+  initializeStorage(app.getPath("userData"));
   createMainWindow();
   createApplicationMenu();
 
@@ -844,6 +981,10 @@ app.whenReady().then(() => {
       createMainWindow();
     }
   });
+});
+
+app.on("before-quit", () => {
+  saveCurrentWorkspaceTabs();
 });
 
 app.on("window-all-closed", () => {
