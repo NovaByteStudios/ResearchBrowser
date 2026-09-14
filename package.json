@@ -1,6 +1,6 @@
 {
   "name": "research-browser",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A workspace-based desktop browser for research",
   "main": "src/main.js",
   "directories": {

@@ -21,6 +21,10 @@ let activeTabId = null;
 let nextTabId = 1;
 let activeWorkspace = null;
 let currentScreen = "workspace";
+let workspaceSaveTimer = null;
+let isRestoringTabs = false;
+
+const WORKSPACE_SAVE_DELAY = 500;
 
 const SIDEBAR_WIDTH = 220;
 const TOP_AREA_HEIGHT = 101;
@@ -135,6 +139,7 @@ function createTab() {
   registerTabEvents(tab);
   switchToTab(tabId);
   sendTabsUpdated();
+  scheduleWorkspaceSave();
 
   return tab;
 }
@@ -163,6 +168,7 @@ function registerTabEvents(tab) {
     }
 
     sendTabsUpdated();
+    scheduleWorkspaceSave();
   });
 
   webContents.on(
@@ -198,6 +204,7 @@ function registerTabEvents(tab) {
     }
 
     sendTabsUpdated();
+    scheduleWorkspaceSave();
   });
 
   webContents.on(
@@ -210,6 +217,7 @@ function registerTabEvents(tab) {
       }
 
       sendTabsUpdated();
+      scheduleWorkspaceSave();
     }
   );
 
@@ -282,6 +290,7 @@ function switchToTab(tabId) {
   sendTabsUpdated();
   sendPageInformation(nextTab);
   sendLoadingState(nextTab.isLoading);
+  scheduleWorkspaceSave();
 }
 
 function closeTab(tabId) {
@@ -308,6 +317,8 @@ function closeTab(tabId) {
   }
 
   tabs.delete(numericTabId);
+  scheduleWorkspaceSave();
+
 
   if (tabs.size === 0) {
     activeTabId = null;
@@ -463,8 +474,11 @@ function loadUrlInTab(tab, url) {
     });
 }
 
-function restoreCurrentWorkspaceTabs() {
+function restoreCurrentWorkspaceTabs() {  
+  isRestoringTabs = true;
+
   if (!activeWorkspace) {
+    isRestoringTabs = false;
     createTab();
     return;
   }
@@ -478,6 +492,7 @@ function restoreCurrentWorkspaceTabs() {
     !Array.isArray(savedTabs) ||
     savedTabs.length === 0
   ) {
+    isRestoringTabs = false;
     createTab();
     return;
   }
@@ -507,6 +522,7 @@ function restoreCurrentWorkspaceTabs() {
   }
 
   if (restoredTabIds.length === 0) {
+    isRestoringTabs = false;
     createTab();
     return;
   }
@@ -530,6 +546,8 @@ function restoreCurrentWorkspaceTabs() {
     restoredTabIds[activeIndex]
   );
 
+  isRestoringTabs = false;
+
   console.log(
     "Tabs wiederhergestellt:",
     activeWorkspace.name,
@@ -537,9 +555,32 @@ function restoreCurrentWorkspaceTabs() {
   );
 }
 
+function scheduleWorkspaceSave() {
+  if (!activeWorkspace) {
+    return;
+  }
+  if (isRestoringTabs) {
+    return;
+  }
+
+  if (workspaceSaveTimer) {
+    clearTimeout(workspaceSaveTimer);
+  }
+
+  workspaceSaveTimer = setTimeout(() => {
+    workspaceSaveTimer = null;
+    saveCurrentWorkspaceTabs();
+  }, WORKSPACE_SAVE_DELAY);
+}
+
+
 function saveCurrentWorkspaceTabs() {
   if (!activeWorkspace) {
     return;
+  }
+  if (workspaceSaveTimer) {
+    clearTimeout(workspaceSaveTimer);
+    workspaceSaveTimer = null;
   }
 
   const tabList = Array.from(tabs.values());
