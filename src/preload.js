@@ -4,9 +4,15 @@ contextBridge.exposeInMainWorld("browserAPI", {
   openWorkspace: (workspace) => {
     ipcRenderer.send("workspace:open", workspace);
   },
+  showWorkspaceSelection: () => {
+    ipcRenderer.send("workspace:show-selection");
+  },
+  browserReady: () => {
+    ipcRenderer.send("browser:ui-ready");
+  },
   createTab: () => {
 
- ipcRenderer.send("tabs:create");
+    ipcRenderer.send("tabs:create");
 
   },
   switchTab: (tabId) => {

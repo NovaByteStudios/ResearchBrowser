@@ -44,17 +44,9 @@ function createMainWindow() {
   mainWindow.webContents.on(
     "did-finish-load",
     () => {
-      if (currentScreen !== "browser") {
-        return;
+      if (currentScreen === "browser") {
+        sendActiveWorkspace();
       }
-
-      if (tabs.size === 0) {
-        createTab();
-      } else {
-        sendTabsUpdated();
-      }
-
-      sendActiveWorkspace();
     }
   );
 
@@ -73,7 +65,17 @@ function createMainWindow() {
 }
 
 function createTab() {
+  console.log(
+    "createTab aufgerufen. Bildschirm:",
+    currentScreen
+  );
+
   if (currentScreen !== "browser") {
+    console.error(
+      "Tab blockiert. Aktueller Bildschirm:",
+      currentScreen
+    );
+
     return null;
   }
 
@@ -303,6 +305,10 @@ function closeTab(tabId) {
 
 function closeAllTabs() {
   for (const tab of tabs.values()) {
+    if (mainWindow && tab.view) {
+      mainWindow.contentView.removeChildView(tab.view);
+    }
+
     if (
       tab.view &&
       !tab.view.webContents.isDestroyed()
@@ -312,6 +318,7 @@ function closeAllTabs() {
   }
 
   tabs.clear();
+  activeTabId = null;
 }
 
 function updateActiveTabBounds() {
@@ -540,12 +547,56 @@ ipcMain.on(
     closeAllTabs();
     activeTabId = null;
     currentScreen = "browser";
+    console.log(
+      "Workspace geöffnet:",
+      activeWorkspace.name,
+      "Bildschirm:",
+      currentScreen
+    );
 
     mainWindow.loadFile(
       path.join(__dirname, "index.html")
     );
   }
 );
+ipcMain.on(
+  "workspace:show-selection",
+  () => {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return;
+    }
+
+    closeAllTabs();
+
+    activeTabId = null;
+    activeWorkspace = null;
+    currentScreen = "workspace";
+
+    mainWindow.loadFile(
+      path.join(__dirname, "workspace.html")
+    );
+  }
+);
+ipcMain.on("browser:ui-ready", () => {
+  if (currentScreen !== "browser") {
+    return;
+  }
+
+  if (tabs.size === 0) {
+    createTab();
+  } else {
+    sendTabsUpdated();
+
+    const activeTab = tabs.get(activeTabId);
+
+    if (activeTab) {
+      sendPageInformation(activeTab);
+      sendLoadingState(activeTab.isLoading);
+    }
+  }
+
+  sendActiveWorkspace();
+});
 
 ipcMain.on("tabs:create", () => {
   createTab();

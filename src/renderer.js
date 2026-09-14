@@ -21,6 +21,8 @@ const tabsContainer =
 
 const newTabButton =
   document.querySelector("#new-tab-button");
+const showWorkspacesButton =
+  document.querySelector("#show-workspaces-button");
 
 let activeTabId = null;
 const activeWorkspaceName =
@@ -242,6 +244,13 @@ newTabButton.addEventListener(
   }
 );
 
+showWorkspacesButton.addEventListener(
+  "click",
+  () => {
+    window.browserAPI.showWorkspaceSelection();
+  }
+);
+
 window.browserAPI.onPageUpdated(
   (pageData) => {
     if (pageData.tabId !== activeTabId) {
@@ -323,3 +332,4 @@ window.browserAPI.onActiveWorkspaceChanged(
       workspace.name;
   }
 );
+window.browserAPI.browserReady();
