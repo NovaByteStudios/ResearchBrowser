@@ -69,6 +69,21 @@ function createMainWindow() {
   });
 }
 
+function getActiveWorkspacePartition() {
+  if (!activeWorkspace || !activeWorkspace.id) {
+    return "persist:workspace-default";
+  }
+
+  const safeWorkspaceId = String(
+    activeWorkspace.id
+  ).replace(
+    /[^a-zA-Z0-9_-]/g,
+    "-"
+  );
+
+  return "persist:workspace-" + safeWorkspaceId;
+}
+
 function createTab() {
   console.log(
     "createTab aufgerufen. Bildschirm:",
@@ -88,8 +103,12 @@ function createTab() {
 
   nextTabId += 1;
 
+  const workspacePartition =
+    getActiveWorkspacePartition();
+
   const browserView = new WebContentsView({
     webPreferences: {
+      partition: workspacePartition,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true
@@ -97,6 +116,11 @@ function createTab() {
   });
 
   browserView.setBackgroundColor("#0b0d12");
+  
+  console.log(
+    "Tab-Partition:",
+    workspacePartition
+  );
 
   const tab = {
     id: tabId,
