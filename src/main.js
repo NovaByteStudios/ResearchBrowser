@@ -3,15 +3,11 @@ const {
   BrowserWindow,
   WebContentsView,
   ipcMain,
-  Menu
+  Menu,
+  session
 } = require("electron");
 
 const path = require("path");
-const {
-  initializeStorage,
-  saveWorkspaceTabs,
-  loadWorkspaceTabs
-} = require("./workspace-storage");
 
 let mainWindow = null;
 
@@ -21,10 +17,6 @@ let activeTabId = null;
 let nextTabId = 1;
 let activeWorkspace = null;
 let currentScreen = "workspace";
-let workspaceSaveTimer = null;
-let isRestoringTabs = false;
-
-const WORKSPACE_SAVE_DELAY = 500;
 
 const SIDEBAR_WIDTH = 220;
 const TOP_AREA_HEIGHT = 101;
@@ -73,21 +65,6 @@ function createMainWindow() {
   });
 }
 
-function getActiveWorkspacePartition() {
-  if (!activeWorkspace || !activeWorkspace.id) {
-    return "persist:workspace-default";
-  }
-
-  const safeWorkspaceId = String(
-    activeWorkspace.id
-  ).replace(
-    /[^a-zA-Z0-9_-]/g,
-    "-"
-  );
-
-  return "persist:workspace-" + safeWorkspaceId;
-}
-
 function createTab() {
   console.log(
     "createTab aufgerufen. Bildschirm:",
@@ -107,12 +84,8 @@ function createTab() {
 
   nextTabId += 1;
 
-  const workspacePartition =
-    getActiveWorkspacePartition();
-
   const browserView = new WebContentsView({
     webPreferences: {
-      partition: workspacePartition,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true
@@ -120,11 +93,6 @@ function createTab() {
   });
 
   browserView.setBackgroundColor("#0b0d12");
-  
-  console.log(
-    "Tab-Partition:",
-    workspacePartition
-  );
 
   const tab = {
     id: tabId,
@@ -139,7 +107,6 @@ function createTab() {
   registerTabEvents(tab);
   switchToTab(tabId);
   sendTabsUpdated();
-  scheduleWorkspaceSave();
 
   return tab;
 }
@@ -168,7 +135,6 @@ function registerTabEvents(tab) {
     }
 
     sendTabsUpdated();
-    scheduleWorkspaceSave();
   });
 
   webContents.on(
@@ -204,7 +170,6 @@ function registerTabEvents(tab) {
     }
 
     sendTabsUpdated();
-    scheduleWorkspaceSave();
   });
 
   webContents.on(
@@ -217,7 +182,6 @@ function registerTabEvents(tab) {
       }
 
       sendTabsUpdated();
-      scheduleWorkspaceSave();
     }
   );
 
@@ -290,7 +254,6 @@ function switchToTab(tabId) {
   sendTabsUpdated();
   sendPageInformation(nextTab);
   sendLoadingState(nextTab.isLoading);
-  scheduleWorkspaceSave();
 }
 
 function closeTab(tabId) {
@@ -317,8 +280,6 @@ function closeTab(tabId) {
   }
 
   tabs.delete(numericTabId);
-  scheduleWorkspaceSave();
-
 
   if (tabs.size === 0) {
     activeTabId = null;
@@ -474,141 +435,6 @@ function loadUrlInTab(tab, url) {
     });
 }
 
-function restoreCurrentWorkspaceTabs() {  
-  isRestoringTabs = true;
-
-  if (!activeWorkspace) {
-    isRestoringTabs = false;
-    createTab();
-    return;
-  }
-
-  const workspaceState =
-    loadWorkspaceTabs(activeWorkspace.id);
-
-  const savedTabs = workspaceState.tabs;
-
-  if (
-    !Array.isArray(savedTabs) ||
-    savedTabs.length === 0
-  ) {
-    isRestoringTabs = false;
-    createTab();
-    return;
-  }
-
-  const restoredTabIds = [];
-
-  for (const savedTab of savedTabs) {
-    const restoredTab = createTab();
-
-    if (!restoredTab) {
-      continue;
-    }
-
-    if (savedTab.title) {
-      restoredTab.title =
-        String(savedTab.title);
-    }
-
-    restoredTabIds.push(restoredTab.id);
-
-    if (savedTab.url) {
-      loadUrlInTab(
-        restoredTab,
-        String(savedTab.url)
-      );
-    }
-  }
-
-  if (restoredTabIds.length === 0) {
-    isRestoringTabs = false;
-    createTab();
-    return;
-  }
-
-  const maximumIndex =
-    restoredTabIds.length - 1;
-
-  const savedActiveIndex =
-    Number.isInteger(
-      workspaceState.activeTabIndex
-    )
-      ? workspaceState.activeTabIndex
-      : 0;
-
-  const activeIndex = Math.min(
-    Math.max(savedActiveIndex, 0),
-    maximumIndex
-  );
-
-  switchToTab(
-    restoredTabIds[activeIndex]
-  );
-
-  isRestoringTabs = false;
-
-  console.log(
-    "Tabs wiederhergestellt:",
-    activeWorkspace.name,
-    restoredTabIds.length
-  );
-}
-
-function scheduleWorkspaceSave() {
-  if (!activeWorkspace) {
-    return;
-  }
-  if (isRestoringTabs) {
-    return;
-  }
-
-  if (workspaceSaveTimer) {
-    clearTimeout(workspaceSaveTimer);
-  }
-
-  workspaceSaveTimer = setTimeout(() => {
-    workspaceSaveTimer = null;
-    saveCurrentWorkspaceTabs();
-  }, WORKSPACE_SAVE_DELAY);
-}
-
-
-function saveCurrentWorkspaceTabs() {
-  if (!activeWorkspace) {
-    return;
-  }
-  if (workspaceSaveTimer) {
-    clearTimeout(workspaceSaveTimer);
-    workspaceSaveTimer = null;
-  }
-
-  const tabList = Array.from(tabs.values());
-
-  const savedTabs = tabList.map((tab) => {
-    return {
-      url: tab.url,
-      title: tab.title || "Neuer Tab"
-    };
-  });
-
-  const activeTabIndex = tabList.findIndex(
-    (tab) => tab.id === activeTabId
-  );
-
-  saveWorkspaceTabs(
-    activeWorkspace.id,
-    savedTabs,
-    activeTabIndex >= 0 ? activeTabIndex : 0
-  );
-
-  console.log(
-    "Tabs gespeichert:",
-    activeWorkspace.name,
-    savedTabs.length
-  );
-}
-
 function sendActiveWorkspace() {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return;
@@ -702,6 +528,66 @@ function sendTabsUpdated() {
   );
 }
 
+function getWorkspacePartition(workspaceId) {
+  const safeWorkspaceId = String(workspaceId).replace(
+    /[^a-zA-Z0-9_-]/g,
+    "-"
+  );
+  return "persist:workspace-" + safeWorkspaceId;
+}
+
+ipcMain.handle(
+  "workspace:delete-data",
+  async (_event, workspaceId) => {
+    if (!workspaceId) {
+      return {
+        success: false,
+        error: "Keine Workspace-ID übergeben."
+      };
+    }
+
+    const normalizedWorkspaceId = String(workspaceId);
+
+    if (
+      activeWorkspace &&
+      activeWorkspace.id === normalizedWorkspaceId
+    ) {
+      return {
+        success: false,
+        error: "Der geöffnete Workspace kann nicht gelöscht werden."
+      };
+    }
+
+    try {
+      deleteWorkspaceData(normalizedWorkspaceId);
+
+      const workspaceSession = session.fromPartition(
+        getWorkspacePartition(normalizedWorkspaceId)
+      );
+
+      await workspaceSession.clearStorageData();
+      await workspaceSession.clearCache();
+      await workspaceSession.clearAuthCache();
+
+      console.log(
+        "Workspace-Daten vollständig gelöscht:",
+        normalizedWorkspaceId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error(
+        "Workspace-Daten konnten nicht gelöscht werden:",
+        error
+      );
+      return {
+        success: false,
+        error: error.message || "Unbekannter Fehler beim Löschen."
+      };
+    }
+  }
+);
+
 ipcMain.on(
   "workspace:open",
   (_event, workspace) => {
@@ -720,10 +606,8 @@ ipcMain.on(
     };
 
     closeAllTabs();
-
     activeTabId = null;
     currentScreen = "browser";
-
     console.log(
       "Workspace geöffnet:",
       activeWorkspace.name,
@@ -731,37 +615,9 @@ ipcMain.on(
       currentScreen
     );
 
-    mainWindow
-      .loadFile(
-        path.join(__dirname, "index.html")
-      )
-      .then(() => {
-        console.log(
-          "Browseroberfläche geladen:",
-          activeWorkspace.name
-        );
-
-        if (tabs.size === 0) {
-          restoreCurrentWorkspaceTabs();
-        }
-
-        sendTabsUpdated();
-
-        const activeTab = tabs.get(activeTabId);
-
-        if (activeTab) {
-          sendPageInformation(activeTab);
-          sendLoadingState(activeTab.isLoading);
-        }
-
-        sendActiveWorkspace();
-      })
-      .catch((error) => {
-        console.error(
-          "Browseroberfläche konnte nicht geladen werden:",
-          error
-        );
-      });
+    mainWindow.loadFile(
+      path.join(__dirname, "index.html")
+    );
   }
 );
 ipcMain.on(
@@ -770,7 +626,7 @@ ipcMain.on(
     if (!mainWindow || mainWindow.isDestroyed()) {
       return;
     }
-    saveCurrentWorkspaceTabs();
+
     closeAllTabs();
 
     activeTabId = null;
@@ -787,13 +643,17 @@ ipcMain.on("browser:ui-ready", () => {
     return;
   }
 
-  sendTabsUpdated();
+  if (tabs.size === 0) {
+    createTab();
+  } else {
+    sendTabsUpdated();
 
-  const activeTab = tabs.get(activeTabId);
+    const activeTab = tabs.get(activeTabId);
 
-  if (activeTab) {
-    sendPageInformation(activeTab);
-    sendLoadingState(activeTab.isLoading);
+    if (activeTab) {
+      sendPageInformation(activeTab);
+      sendLoadingState(activeTab.isLoading);
+    }
   }
 
   sendActiveWorkspace();
@@ -1034,7 +894,6 @@ function createApplicationMenu() {
 }
 
 app.whenReady().then(() => {
-  initializeStorage(app.getPath("userData"));
   createMainWindow();
   createApplicationMenu();
 
@@ -1046,10 +905,6 @@ app.whenReady().then(() => {
       createMainWindow();
     }
   });
-});
-
-app.on("before-quit", () => {
-  saveCurrentWorkspaceTabs();
 });
 
 app.on("window-all-closed", () => {

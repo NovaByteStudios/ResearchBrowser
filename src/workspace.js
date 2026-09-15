@@ -1,29 +1,13 @@
-const workspaceList =
-  document.querySelector("#workspace-list");
+const workspaceList = document.querySelector("#workspace-list");
+const createWorkspaceButton = document.querySelector("#create-workspace-button");
+const workspaceDialog = document.querySelector("#workspace-dialog");
+const workspaceNameInput = document.querySelector("#workspace-name-input");
+const workspaceNameError = document.querySelector("#workspace-name-error");
+const cancelWorkspaceButton = document.querySelector("#cancel-workspace-button");
+const saveWorkspaceButton = document.querySelector("#save-workspace-button");
 
-const createWorkspaceButton =
-  document.querySelector("#create-workspace-button");
-
-const workspaceDialog =
-  document.querySelector("#workspace-dialog");
-
-const workspaceNameInput =
-  document.querySelector("#workspace-name-input");
-
-const workspaceNameError =
-  document.querySelector("#workspace-name-error");
-
-const cancelWorkspaceButton =
-  document.querySelector("#cancel-workspace-button");
-
-const saveWorkspaceButton =
-  document.querySelector("#save-workspace-button");
-
-const WORKSPACES_STORAGE_KEY =
-  "research-browser-workspaces";
-
-const ACTIVE_WORKSPACE_STORAGE_KEY =
-  "research-browser-active-workspace";
+const WORKSPACES_STORAGE_KEY = "research-browser-workspaces";
+const ACTIVE_WORKSPACE_STORAGE_KEY = "research-browser-active-workspace";
 
 const defaultWorkspaces = [
   {
@@ -33,20 +17,29 @@ const defaultWorkspaces = [
 ];
 
 let workspaces = loadWorkspaces();
+let openWorkspaceMenu = null;
+let selectedWorkspaceId = null;
+let editingWorkspaceId = null;
+
+function createIcon(iconClass) {
+  const icon = document.createElement("span");
+  icon.className = `app-icon ${iconClass}`;
+  icon.setAttribute("aria-hidden", "true");
+  return icon;
+}
 
 function loadWorkspaces() {
-  const savedWorkspaces =
-    localStorage.getItem(WORKSPACES_STORAGE_KEY);
+  const savedWorkspaces = localStorage.getItem(
+    WORKSPACES_STORAGE_KEY
+  );
 
   if (!savedWorkspaces) {
     saveWorkspaces(defaultWorkspaces);
-
     return [...defaultWorkspaces];
   }
 
   try {
-    const parsedWorkspaces =
-      JSON.parse(savedWorkspaces);
+    const parsedWorkspaces = JSON.parse(savedWorkspaces);
 
     if (!Array.isArray(parsedWorkspaces)) {
       return [...defaultWorkspaces];
@@ -84,129 +77,300 @@ function openWorkspace(workspaceId, workspaceName) {
   };
 
   saveActiveWorkspace(workspace);
-
   window.browserAPI.openWorkspace(workspace);
 }
 
-function connectWorkspaceCard(workspaceCard) {
-  workspaceCard.addEventListener("click", () => {
-    const workspaceId =
-      workspaceCard.dataset.workspaceId;
+function closeWorkspaceMenu() {
+  if (openWorkspaceMenu) {
+    openWorkspaceMenu.remove();
+    openWorkspaceMenu = null;
+  }
 
-    const workspaceName =
-      workspaceCard.dataset.workspaceName;
+  selectedWorkspaceId = null;
+}
 
-    if (!workspaceId || !workspaceName) {
+function showWorkspaceMenu(workspace, menuButton) {
+  closeWorkspaceMenu();
+  selectedWorkspaceId = workspace.id;
+
+  const menu = document.createElement("div");
+  menu.className = "workspace-menu";
+
+  const renameButton = document.createElement("button");
+  renameButton.className = "workspace-menu-item";
+  renameButton.type = "button";
+
+  const renameIcon = createIcon("icon-rename");
+  const renameText = document.createElement("span");
+  renameText.textContent = "Umbenennen";
+
+  renameButton.append(renameIcon, renameText);
+
+  const divider = document.createElement("div");
+  divider.className = "workspace-menu-divider";
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className =
+    "workspace-menu-item workspace-menu-item-danger";
+  deleteButton.type = "button";
+
+  const deleteIcon = createIcon("icon-delete");
+  const deleteText = document.createElement("span");
+  deleteText.textContent = "Löschen";
+
+  deleteButton.append(deleteIcon, deleteText);
+  menu.append(renameButton, divider, deleteButton);
+  document.body.appendChild(menu);
+
+  const buttonPosition = menuButton.getBoundingClientRect();
+  const menuWidth = 190;
+  const distanceFromEdge = 12;
+
+  const leftPosition = Math.max(
+    buttonPosition.right - menuWidth,
+    distanceFromEdge
+  );
+
+  menu.style.left = leftPosition + "px";
+  menu.style.top = buttonPosition.bottom + 6 + "px";
+
+  renameButton.addEventListener("click", () => {
+    closeWorkspaceMenu();
+    showRenameWorkspaceDialog(workspace);
+  });
+
+  deleteButton.addEventListener("click", () => {
+    closeWorkspaceMenu();
+    deleteWorkspace(workspace);
+  });
+
+  openWorkspaceMenu = menu;
+}
+
+async function deleteWorkspace(workspace) {
+  const shouldDelete = window.confirm(
+    `Workspace „${workspace.name}“ wirklich löschen?\n\nGespeicherte Tabs, Cookies, Cache und Website-Anmeldungen werden endgültig entfernt.`
+  );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  try {
+    const result = await window.browserAPI.deleteWorkspaceData(
+      workspace.id
+    );
+
+    if (!result || !result.success) {
+      const errorMessage = result && result.error
+        ? result.error
+        : "Die Workspace-Daten konnten nicht gelöscht werden.";
+      window.alert(errorMessage);
       return;
     }
 
-    openWorkspace(
-      workspaceId,
-      workspaceName
+    workspaces = workspaces.filter(
+      (item) => item.id !== workspace.id
     );
-  });
+    saveWorkspaces(workspaces);
+
+    const savedActiveWorkspace = localStorage.getItem(
+      ACTIVE_WORKSPACE_STORAGE_KEY
+    );
+
+    if (savedActiveWorkspace) {
+      try {
+        const activeWorkspace = JSON.parse(savedActiveWorkspace);
+        if (activeWorkspace.id === workspace.id) {
+          localStorage.removeItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+        }
+      } catch (error) {
+        localStorage.removeItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+      }
+    }
+
+    renderWorkspaces();
+  } catch (error) {
+    console.error("Workspace konnte nicht gelöscht werden:", error);
+    window.alert(
+      "Beim Löschen ist ein Fehler aufgetreten. Der Workspace wurde nicht entfernt."
+    );
+  }
 }
 
 function createWorkspaceCard(workspace) {
-  const workspaceCard =
-    document.createElement("button");
-
+  const workspaceCard = document.createElement("button");
   workspaceCard.className = "workspace-card";
   workspaceCard.type = "button";
+  workspaceCard.dataset.workspaceId = workspace.id;
+  workspaceCard.dataset.workspaceName = workspace.name;
 
-  workspaceCard.dataset.workspaceId =
-    workspace.id;
+  const iconContainer = document.createElement("span");
+  iconContainer.className = "workspace-card-icon";
 
-  workspaceCard.dataset.workspaceName =
-    workspace.name;
+  const workspaceIcon = createIcon("icon-workspace");
+  iconContainer.appendChild(workspaceIcon);
 
-  const icon =
-    document.createElement("span");
+  const information = document.createElement("span");
+  information.className = "workspace-card-information";
 
-  icon.className = "workspace-card-icon";
-  icon.textContent = "🔎";
-
-  const information =
-    document.createElement("span");
-
-  information.className =
-    "workspace-card-information";
-
-  const title =
-    document.createElement("strong");
-
+  const title = document.createElement("strong");
   title.textContent = workspace.name;
 
-  const description =
-    document.createElement("small");
+  const description = document.createElement("small");
+  description.textContent = "Noch keine gespeicherten Tabs";
 
-  description.textContent =
-    "Noch keine gespeicherten Tabs";
+  const menuButton = document.createElement("span");
+  menuButton.className = "workspace-card-menu-button";
+  menuButton.title = "Workspace verwalten";
+  menuButton.setAttribute("role", "button");
+  menuButton.setAttribute("tabindex", "0");
+  menuButton.setAttribute(
+    "aria-label",
+    workspace.name + " verwalten"
+  );
 
-  const arrow =
-    document.createElement("span");
+  const moreIcon = createIcon("icon-more");
+  menuButton.appendChild(moreIcon);
 
-  arrow.className = "workspace-card-arrow";
-  arrow.textContent = "→";
+  information.append(title, description);
+  workspaceCard.append(
+    iconContainer,
+    information,
+    menuButton
+  );
 
-  information.appendChild(title);
-  information.appendChild(description);
+  workspaceCard.addEventListener("click", () => {
+    openWorkspace(workspace.id, workspace.name);
+  });
 
-  workspaceCard.appendChild(icon);
-  workspaceCard.appendChild(information);
-  workspaceCard.appendChild(arrow);
+  menuButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showWorkspaceMenu(workspace, menuButton);
+  });
 
-  connectWorkspaceCard(workspaceCard);
+  menuButton.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      event.stopPropagation();
+      showWorkspaceMenu(workspace, menuButton);
+    }
+  });
 
   return workspaceCard;
 }
 
+function updateCreateWorkspaceIcon() {
+  const iconContainer = createWorkspaceButton.querySelector(
+    ".workspace-card-icon"
+  );
+
+  if (!iconContainer) {
+    return;
+  }
+
+  iconContainer.replaceChildren(
+    createIcon("icon-workspace-add")
+  );
+}
+
 function renderWorkspaces() {
-  const oldWorkspaceCards =
-    workspaceList.querySelectorAll(
-      ".workspace-card:not(.workspace-card-new)"
-    );
+  closeWorkspaceMenu();
+
+  const oldWorkspaceCards = workspaceList.querySelectorAll(
+    ".workspace-card:not(.workspace-card-new)"
+  );
 
   for (const oldCard of oldWorkspaceCards) {
     oldCard.remove();
   }
 
   for (const workspace of workspaces) {
-    const workspaceCard =
-      createWorkspaceCard(workspace);
+    const workspaceCard = createWorkspaceCard(workspace);
 
     workspaceList.insertBefore(
       workspaceCard,
       createWorkspaceButton
     );
   }
+
+  updateCreateWorkspaceIcon();
 }
 
-function showWorkspaceDialog() {
+function showCreateWorkspaceDialog() {
+  editingWorkspaceId = null;
   workspaceNameInput.value = "";
-
   workspaceNameError.classList.add("hidden");
+  saveWorkspaceButton.textContent = "Workspace erstellen";
   workspaceDialog.classList.remove("hidden");
-
   workspaceNameInput.focus();
+}
+
+function showRenameWorkspaceDialog(workspace) {
+  editingWorkspaceId = workspace.id;
+  workspaceNameInput.value = workspace.name;
+  workspaceNameError.classList.add("hidden");
+  saveWorkspaceButton.textContent = "Änderungen speichern";
+  workspaceDialog.classList.remove("hidden");
+  workspaceNameInput.focus();
+  workspaceNameInput.select();
 }
 
 function hideWorkspaceDialog() {
   workspaceDialog.classList.add("hidden");
+  workspaceNameError.classList.add("hidden");
+  editingWorkspaceId = null;
   createWorkspaceButton.focus();
 }
 
-function saveNewWorkspace() {
-  const workspaceName =
-    workspaceNameInput.value.trim();
+function updateSavedActiveWorkspace(workspace) {
+  const savedActiveWorkspace = localStorage.getItem(
+    ACTIVE_WORKSPACE_STORAGE_KEY
+  );
+
+  if (!savedActiveWorkspace) {
+    return;
+  }
+
+  try {
+    const activeWorkspace = JSON.parse(savedActiveWorkspace);
+
+    if (activeWorkspace.id === workspace.id) {
+      saveActiveWorkspace(workspace);
+    }
+  } catch (error) {
+    console.error(
+      "Aktiver Workspace konnte nicht aktualisiert werden:",
+      error
+    );
+  }
+}
+
+function saveWorkspaceDialog() {
+  const workspaceName = workspaceNameInput.value.trim();
 
   if (workspaceName === "") {
-    workspaceNameError.classList.remove(
-      "hidden"
+    workspaceNameError.classList.remove("hidden");
+    workspaceNameInput.focus();
+    return;
+  }
+
+  if (editingWorkspaceId) {
+    const workspace = workspaces.find(
+      (item) => item.id === editingWorkspaceId
     );
 
-    workspaceNameInput.focus();
+    if (!workspace) {
+      hideWorkspaceDialog();
+      return;
+    }
 
+    workspace.name = workspaceName;
+    saveWorkspaces(workspaces);
+    updateSavedActiveWorkspace(workspace);
+    renderWorkspaces();
+    hideWorkspaceDialog();
     return;
   }
 
@@ -220,10 +384,9 @@ function saveNewWorkspace() {
   renderWorkspaces();
   hideWorkspaceDialog();
 
-  const newWorkspaceCard =
-    workspaceList.querySelector(
-      `[data-workspace-id="${newWorkspace.id}"]`
-    );
+  const newWorkspaceCard = workspaceList.querySelector(
+    `[data-workspace-id="${newWorkspace.id}"]`
+  );
 
   if (newWorkspaceCard) {
     newWorkspaceCard.focus();
@@ -232,7 +395,7 @@ function saveNewWorkspace() {
 
 createWorkspaceButton.addEventListener(
   "click",
-  showWorkspaceDialog
+  showCreateWorkspaceDialog
 );
 
 cancelWorkspaceButton.addEventListener(
@@ -242,38 +405,38 @@ cancelWorkspaceButton.addEventListener(
 
 saveWorkspaceButton.addEventListener(
   "click",
-  saveNewWorkspace
+  saveWorkspaceDialog
 );
 
-workspaceNameInput.addEventListener(
-  "input",
-  () => {
-    workspaceNameError.classList.add(
-      "hidden"
-    );
+workspaceNameInput.addEventListener("input", () => {
+  workspaceNameError.classList.add("hidden");
+});
+
+workspaceNameInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    saveWorkspaceDialog();
   }
-);
 
-workspaceNameInput.addEventListener(
-  "keydown",
-  (event) => {
-    if (event.key === "Enter") {
-      saveNewWorkspace();
-    }
-
-    if (event.key === "Escape") {
-      hideWorkspaceDialog();
-    }
+  if (event.key === "Escape") {
+    hideWorkspaceDialog();
   }
-);
+});
 
-workspaceDialog.addEventListener(
-  "click",
-  (event) => {
-    if (event.target === workspaceDialog) {
-      hideWorkspaceDialog();
-    }
+workspaceDialog.addEventListener("click", (event) => {
+  if (event.target === workspaceDialog) {
+    hideWorkspaceDialog();
   }
-);
+});
+
+document.addEventListener("click", (event) => {
+  if (
+    openWorkspaceMenu &&
+    !openWorkspaceMenu.contains(event.target)
+  ) {
+    closeWorkspaceMenu();
+  }
+});
+
+window.addEventListener("resize", closeWorkspaceMenu);
 
 renderWorkspaces();
