@@ -198,7 +198,58 @@ async function deleteWorkspace(workspace) {
   }
 }
 
-function createWorkspaceCard(workspace) {
+async function loadWorkspaceTabCount(workspaceId) {
+  try {
+    const count = await window.browserAPI.getWorkspaceTabCount(
+      workspaceId
+    );
+
+    return Number.isInteger(count) && count >= 0 ? count : 0;
+  } catch (error) {
+    console.error(
+      "Tabanzahl konnte nicht geladen werden:",
+      error
+    );
+    return 0;
+  }
+}
+
+function formatTabCount(tabCount) {
+  if (tabCount === 0) {
+    return "Keine gespeicherten Tabs";
+  }
+
+  if (tabCount === 1) {
+    return "1 gespeicherter Tab";
+  }
+
+  return `${tabCount} gespeicherte Tabs`;
+}
+
+function getLastOpenedWorkspaceId() {
+  const savedActiveWorkspace = localStorage.getItem(
+    ACTIVE_WORKSPACE_STORAGE_KEY
+  );
+
+  if (!savedActiveWorkspace) {
+    return null;
+  }
+
+  try {
+    const activeWorkspace = JSON.parse(savedActiveWorkspace);
+    return activeWorkspace && activeWorkspace.id
+      ? String(activeWorkspace.id)
+      : null;
+  } catch (error) {
+    console.error(
+      "Zuletzt geöffneter Workspace konnte nicht gelesen werden:",
+      error
+    );
+    return null;
+  }
+}
+
+function createWorkspaceCard(workspace, tabCount) {
   const workspaceCard = document.createElement("button");
   workspaceCard.className = "workspace-card";
   workspaceCard.type = "button";
@@ -214,11 +265,23 @@ function createWorkspaceCard(workspace) {
   const information = document.createElement("span");
   information.className = "workspace-card-information";
 
+  const titleRow = document.createElement("span");
+  titleRow.className = "workspace-card-title-row";
+
   const title = document.createElement("strong");
   title.textContent = workspace.name;
+  titleRow.appendChild(title);
+
+  if (workspace.id === getLastOpenedWorkspaceId()) {
+    const lastOpenedBadge = document.createElement("span");
+    lastOpenedBadge.className = "workspace-last-opened-badge";
+    lastOpenedBadge.textContent = "Zuletzt geöffnet";
+    titleRow.appendChild(lastOpenedBadge);
+    workspaceCard.classList.add("workspace-card-last-opened");
+  }
 
   const description = document.createElement("small");
-  description.textContent = "Noch keine gespeicherten Tabs";
+  description.textContent = formatTabCount(tabCount);
 
   const menuButton = document.createElement("span");
   menuButton.className = "workspace-card-menu-button";
@@ -233,7 +296,7 @@ function createWorkspaceCard(workspace) {
   const moreIcon = createIcon("icon-more");
   menuButton.appendChild(moreIcon);
 
-  information.append(title, description);
+  information.append(titleRow, description);
   workspaceCard.append(
     iconContainer,
     information,
@@ -275,7 +338,7 @@ function updateCreateWorkspaceIcon() {
   );
 }
 
-function renderWorkspaces() {
+async function renderWorkspaces() {
   closeWorkspaceMenu();
 
   const oldWorkspaceCards = workspaceList.querySelectorAll(
@@ -287,7 +350,11 @@ function renderWorkspaces() {
   }
 
   for (const workspace of workspaces) {
-    const workspaceCard = createWorkspaceCard(workspace);
+    const tabCount = await loadWorkspaceTabCount(workspace.id);
+    const workspaceCard = createWorkspaceCard(
+      workspace,
+      tabCount
+    );
 
     workspaceList.insertBefore(
       workspaceCard,
