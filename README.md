@@ -160,6 +160,12 @@ Eine spätere Google-Drive-Verbindung soll optional sein. Vor einer Veröffentli
 ```text
 ResearchBrowser/
 ├── assets/
+│   └── icons/
+│       ├── delete.svg
+│       ├── more.svg
+│       ├── rename.svg
+│       ├── workspace-add.svg
+│       └── workspace.svg
 ├── docs/
 ├── src/
 │   ├── index.html
@@ -342,9 +348,11 @@ v0.5.0  Workspace-Auswahl und lokale Speicherung
 v0.5.1  Workspace-Wechsel und Tab-Erstellung repariert
 v0.6.0  Tabs getrennt pro Workspace speichern
 v0.6.1  Browsersitzungen pro Workspace trennen
+v0.7.0  Workspace-Verwaltung mit Umbenennen und Löschen erweitern
+v0.7.1  Workspace-Übersicht mit Tabanzahl, Hervorhebung und reparierten Symbolen verbessern
 ```
 
-Die Versionsliste wird mit jedem abgeschlossenen Meilenstein erweitert.
+Die vollständige Versionshistorie wird ab jetzt in `CHANGELOG.md` gepflegt.
 
 ## Entwicklungsprinzipien
 

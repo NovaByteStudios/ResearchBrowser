@@ -1,171 +1,82 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="styles.css">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
-
   <title>Research Browser</title>
-
 </head>
-
 <body>
   <div class="app">
-
     <!-- Tab-Leiste -->
-<header class="tab-bar">
-
- <div id="tabs-container" class="tabs-container"></div>
-
- <button id="new-tab-button" class="new-tab-button" type="button" aria-label="Neuer Tab" title="Neuer Tab">
-
- +
-
- </button>
-
-</header>
+    <header class="tab-bar">
+      <div id="tabs-container" class="tabs-container"></div>
+      <button id="new-tab-button" class="new-tab-button" type="button" aria-label="Neuer Tab" title="Neuer Tab">
+        +
+      </button>
+    </header>
 
     <!-- Browser-Navigation -->
     <nav class="navigation-bar">
       <div class="navigation-buttons">
-        <button
-          class="icon-button"
-          type="button"
-          data-action="back"
-          aria-label="Zurück"
-          title="Zurück"
-        >
-          ←
-        </button>
-
-        <button
-          class="icon-button"
-          type="button"
-          data-action="forward"
-          aria-label="Vorwärts"
-          title="Vorwärts"
-        >
-          →
-        </button>
-
-        <button
-          class="icon-button"
-          type="button"
-          data-action="reload"
-          aria-label="Neu laden"
-          title="Neu laden"
-        >
-          ↻
-        </button>
+        <button class="icon-button" type="button" data-action="back" aria-label="Zurück" title="Zurück">←</button>
+        <button class="icon-button" type="button" data-action="forward" aria-label="Vorwärts" title="Vorwärts">→</button>
+        <button class="icon-button" type="button" data-action="reload" aria-label="Neu laden" title="Neu laden">↻</button>
       </div>
 
       <div class="address-container">
-        <span
-          class="address-security"
-          aria-hidden="true"
-        >
-          ⌕
-        </span>
-
-        <input
-          class="address-bar"
-          type="text"
-          placeholder="Adresse eingeben oder suchen"
-          aria-label="Adressleiste"
-          autocomplete="off"
-          spellcheck="false"
-        >
+        <span class="address-security" aria-hidden="true">⌕</span>
+        <input class="address-bar" type="text" placeholder="Adresse eingeben oder suchen" aria-label="Adressleiste" autocomplete="off" spellcheck="false">
       </div>
 
       <div class="action-buttons">
-        <button
-          class="save-source-button"
-          type="button"
-          title="Aktuelle Webseite als Quelle speichern"
-        >
+        <button class="save-source-button" type="button" title="Aktuelle Webseite als Quelle speichern">
           Quelle speichern
         </button>
-
-        <button
-          class="icon-button"
-          type="button"
-          aria-label="Menü öffnen"
-          title="Menü"
-        >
-          ⋮
-        </button>
+        <button class="icon-button" type="button" aria-label="Menü öffnen" title="Menü">⋮</button>
       </div>
     </nav>
+
     <div class="loading-bar" aria-hidden="true">
-    <div class="loading-bar-progress"></div>
+      <div class="loading-bar-progress"></div>
     </div>
 
     <!-- Hauptbereich -->
     <div class="main-area">
-
       <!-- Seitenleiste -->
       <aside class="sidebar">
-        <div class="workspace-label">
-          Aktiver Workspace
-        </div>
-
+        <div class="workspace-label">Aktiver Workspace</div>
         <div class="workspace-name">
           <span aria-hidden="true">🔎</span>
           <strong>Erster Workspace</strong>
         </div>
 
-        <nav
-          class="sidebar-navigation"
-          aria-label="Workspace-Bereiche"
-        >
-          <button
-            class="sidebar-button active"
-            type="button"
-          >
+        <nav class="sidebar-navigation" aria-label="Workspace-Bereiche">
+          <button class="sidebar-button active" type="button">
             <span class="sidebar-icon" aria-hidden="true">⌂</span>
             <span class="sidebar-text">Browser</span>
           </button>
-
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button id="show-sources-button" class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">★</span>
             <span class="sidebar-text">Quellen</span>
           </button>
-
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">✎</span>
             <span class="sidebar-text">Notizen</span>
           </button>
-
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">◷</span>
             <span class="sidebar-text">Timeline</span>
           </button>
-
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">◇</span>
             <span class="sidebar-text">Research Board</span>
           </button>
-
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">⇩</span>
             <span class="sidebar-text">Downloads</span>
           </button>
@@ -173,16 +84,10 @@
 
         <div class="sidebar-settings">
           <button id="show-workspaces-button" class="sidebar-button" type="button">
-
             <span class="sidebar-icon" aria-hidden="true">⇄</span>
-
             <span class="sidebar-text">Workspaces</span>
-
           </button>
-          <button
-            class="sidebar-button"
-            type="button"
-          >
+          <button class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">⚙</span>
             <span class="sidebar-text">Einstellungen</span>
           </button>
@@ -193,16 +98,8 @@
       <main class="content">
         <section class="start-page">
           <div class="start-content">
-
-            <div
-              class="logo"
-              aria-hidden="true"
-            >
-              R
-            </div>
-
+            <div class="logo" aria-hidden="true">R</div>
             <h1>Research Browser</h1>
-
             <p class="start-description">
               Recherchieren, Quellen sichern und Wissen
               übersichtlich in einem Workspace organisieren.
@@ -210,71 +107,50 @@
 
             <div class="search-box">
               <span aria-hidden="true">⌕</span>
-
-              <input
-                type="text"
-                placeholder="Webadresse oder Suchbegriff eingeben"
-                aria-label="Webadresse oder Suchbegriff"
-                autocomplete="off"
-                spellcheck="false"
-              >
+              <input type="text" placeholder="Webadresse oder Suchbegriff eingeben" aria-label="Webadresse oder Suchbegriff" autocomplete="off" spellcheck="false">
             </div>
 
             <div class="feature-cards">
-
               <article class="feature-card">
-                <span
-                  class="feature-card-icon"
-                  aria-hidden="true"
-                >
-                  ★
-                </span>
-
+                <span class="feature-card-icon" aria-hidden="true">★</span>
                 <strong>Quellen speichern</strong>
-
-                <p>
-                  Webseiten später mit Notizen, Tags und
-                  einem Prüfstatus sichern.
-                </p>
+                <p>Webseiten später mit Notizen, Tags und einem Prüfstatus sichern.</p>
               </article>
-
               <article class="feature-card">
-                <span
-                  class="feature-card-icon"
-                  aria-hidden="true"
-                >
-                  ✎
-                </span>
-
+                <span class="feature-card-icon" aria-hidden="true">✎</span>
                 <strong>Notizen erstellen</strong>
-
-                <p>
-                  Gedanken und Erkenntnisse direkt mit
-                  den passenden Quellen verbinden.
-                </p>
+                <p>Gedanken und Erkenntnisse direkt mit den passenden Quellen verbinden.</p>
               </article>
-
               <article class="feature-card">
-                <span
-                  class="feature-card-icon"
-                  aria-hidden="true"
-                >
-                  ◇
-                </span>
-
+                <span class="feature-card-icon" aria-hidden="true">◇</span>
                 <strong>Zusammenhänge erkennen</strong>
-
-                <p>
-                  Personen, Unternehmen, Orte und
-                  Ereignisse strukturiert verknüpfen.
-                </p>
+                <p>Personen, Unternehmen, Orte und Ereignisse strukturiert verknüpfen.</p>
               </article>
-
             </div>
           </div>
         </section>
-      </main>
 
+        <section id="sources-page" class="sources-page hidden" aria-labelledby="sources-heading">
+          <header class="sources-header">
+            <div>
+              <span class="page-eyebrow">Aktiver Workspace</span>
+              <h1 id="sources-heading">Gespeicherte Quellen</h1>
+              <p>Webseiten, die du für deine Recherche gespeichert hast.</p>
+            </div>
+            <button id="return-to-browser-button" class="secondary-button" type="button">
+              Zurück zum Browser
+            </button>
+          </header>
+
+          <div id="sources-empty-state" class="sources-empty-state">
+            <span class="sources-empty-icon" aria-hidden="true">★</span>
+            <h2>Noch keine Quellen gespeichert</h2>
+            <p>Öffne eine Webseite und klicke oben auf „Quelle speichern“.</p>
+          </div>
+
+          <div id="sources-list" class="sources-list" aria-live="polite"></div>
+        </section>
+      </main>
     </div>
   </div>
   <script src="renderer.js"></script>
