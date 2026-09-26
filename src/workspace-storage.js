@@ -112,9 +112,21 @@ function deleteWorkspaceData(workspaceId) {
   return true;
 }
 
+function getWorkspaceTabCount(workspaceId) {
+  if (!workspaceId) {
+    return 0;
+  }
+
+  const workspaceState =
+    loadWorkspaceTabs(workspaceId);
+
+  return workspaceState.tabs.length;
+}
+
 module.exports = {
   initializeStorage,
   saveWorkspaceTabs,
   loadWorkspaceTabs,
-  deleteWorkspaceData
+  deleteWorkspaceData,
+  getWorkspaceTabCount
 };

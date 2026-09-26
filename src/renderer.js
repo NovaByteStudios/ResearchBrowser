@@ -23,6 +23,26 @@ const newTabButton =
   document.querySelector("#new-tab-button");
 const showWorkspacesButton =
   document.querySelector("#show-workspaces-button");
+const showSourcesButton =
+  document.querySelector(
+    "#show-sources-button"
+  );
+
+const returnToBrowserButton =
+  document.querySelector(
+    "#return-to-browser-button"
+  );
+
+const browserSidebarButton =
+  document.querySelector(
+    ".sidebar-navigation .sidebar-button"
+  );
+
+const startPage =
+  document.querySelector(".start-page");
+
+const sourcesPage =
+  document.querySelector("#sources-page");
 
 let activeTabId = null;
 const activeWorkspaceName =
@@ -51,6 +71,54 @@ if (savedActiveWorkspace) {
       error
     );
   }
+}
+function updateSidebarSelection(
+  activeButton
+) {
+  const sidebarButtons =
+    document.querySelectorAll(
+      ".sidebar-navigation .sidebar-button"
+    );
+
+  for (const button of sidebarButtons) {
+    button.classList.toggle(
+      "active",
+      button === activeButton
+    );
+  }
+}
+
+function showSourcesPage() {
+  startPage.classList.add("hidden");
+  sourcesPage.classList.remove("hidden");
+
+  updateSidebarSelection(
+    showSourcesButton
+  );
+
+  window.browserAPI.showInternalPage(
+    "sources"
+  );
+}
+
+function showBrowserPage() {
+  sourcesPage.classList.add("hidden");
+
+  updateSidebarSelection(
+    browserSidebarButton
+  );
+
+  window.browserAPI.showInternalPage(
+    "browser"
+  );
+
+  const activeTabHasPage =
+    addressBar.value.trim() !== "";
+
+  startPage.classList.toggle(
+    "hidden",
+    activeTabHasPage
+  );
 }
 function navigate(input) {
   const cleanedInput = input.trim();
@@ -244,6 +312,27 @@ newTabButton.addEventListener(
   }
 );
 
+showSourcesButton.addEventListener(
+  "click",
+  () => {
+    showSourcesPage();
+  }
+);
+
+returnToBrowserButton.addEventListener(
+  "click",
+  () => {
+    showBrowserPage();
+  }
+);
+
+browserSidebarButton.addEventListener(
+  "click",
+  () => {
+    showBrowserPage();
+  }
+);
+
 showWorkspacesButton.addEventListener(
   "click",
   () => {
@@ -272,11 +361,26 @@ window.browserAPI.onPageUpdated(
       !pageData.canGoForward;
 
     if (!pageData.hasPage) {
-      startSearchInput.value = "";
-      addressBar.value = "";
-      addressBar.focus();
-      addressBar.select();
-    }
+  startSearchInput.value = "";
+  addressBar.value = "";
+
+  if (
+    sourcesPage.classList.contains(
+      "hidden"
+    )
+  ) {
+    startPage.classList.remove(
+      "hidden"
+    );
+
+    addressBar.focus();
+    addressBar.select();
+  }
+
+  return;
+}
+
+startPage.classList.add("hidden");
   }
 );
 

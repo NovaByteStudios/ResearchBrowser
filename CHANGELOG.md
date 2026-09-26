@@ -6,26 +6,38 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 
 ## [Unveröffentlicht]
 
-### Hinzugefügt
-- Grundstruktur der Quellenansicht in der Browseroberfläche vorbereitet.
-- Eindeutige Steuerelemente für das spätere Öffnen und Schließen der Quellenansicht ergänzt.
-- Leerer Ausgangszustand und Container für gespeicherte Quellen angelegt.
-
 ### Geplant
-- Umschalten zwischen Browser- und Quellenansicht.
 - Aktuelle Webseite als Quelle im aktiven Workspace speichern.
-- Quellen pro Workspace getrennt verwalten, öffnen und löschen.
+- Quellen dauerhaft und getrennt pro Workspace speichern.
+- Gespeicherte Quellen öffnen und löschen.
 
-## [0.7.1] - 2026-09-20
+## [0.8.0] - 2026-09-26
 
 ### Hinzugefügt
-- Tatsächliche Anzahl gespeicherter Tabs in der Workspace-Auswahl angezeigt.
-- Sprachlich korrekte Anzeige für keinen, einen oder mehrere Tabs ergänzt.
-- Zuletzt geöffneten Workspace gekennzeichnet und optisch hervorgehoben.
+- Eigene Quellenansicht in der Browseroberfläche hinzugefügt.
+- Leeren Ausgangszustand für Workspaces ohne gespeicherte Quellen ergänzt.
+- Schaltfläche zur Rückkehr in die Browseransicht hinzugefügt.
+- Gespeicherte Tabanzahl in der Workspace-Auswahl mit dem Workspace-Speicher verbunden.
+- Getrennte Chromium-Sitzungen beim Erstellen neuer Workspace-Tabs aktiviert.
+
+### Verbessert
+- Wechsel zwischen Browser- und Quellenansicht ermöglicht.
+- Aktiven Bereich in der Seitenleiste optisch hervorgehoben.
+- Geöffnete Webseite beim Anzeigen der Quellenansicht ausgeblendet.
+- Geöffneten Browser-Tab beim Wechsel der Ansicht beibehalten.
+- Browseransicht kann über die Seitenleiste oder die Zurück-Schaltfläche wiederhergestellt werden.
+- Interne Ansicht wird beim Öffnen und Verlassen eines Workspaces zurückgesetzt.
+- Geöffnete Tabs werden beim Verlassen eines Workspace automatisch gespeichert.
+- Gespeicherte Tabs werden beim erneuten Öffnen des Workspace automatisch wiederhergestellt.
+- Zuletzt aktiver Tab eines Workspace wird wieder ausgewählt.
+- Tabs werden auch beim vollständigen Beenden der Anwendung gespeichert.
+- Websites, Cookies, Anmeldungen, Cache und Website-Speicher bleiben zwischen Workspaces getrennt.
 
 ### Behoben
-- SVG-Symbole für Workspace, neuen Workspace und das Aktionsmenü wiederhergestellt.
-- Symbole für Umbenennen und Löschen im Workspace-Menü repariert.
+- Fehlende Verbindung zwischen dem Hauptprozess und dem Workspace-Speicher hergestellt.
+- Fehlenden IPC-Handler für die gespeicherte Tabanzahl ergänzt.
+- Verlust geöffneter Websites beim Verlassen eines Workspace behoben.
+- Verlust geöffneter Websites nach einem vollständigen App-Neustart behoben.
 
 ## [0.7.0]
 

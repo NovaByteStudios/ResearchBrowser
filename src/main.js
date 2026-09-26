@@ -9,6 +9,14 @@ const {
 
 const path = require("path");
 
+const {
+  initializeStorage,
+  saveWorkspaceTabs,
+  loadWorkspaceTabs,
+  deleteWorkspaceData,
+  getWorkspaceTabCount
+} = require("./workspace-storage");
+
 let mainWindow = null;
 
 const tabs = new Map();
@@ -17,6 +25,7 @@ let activeTabId = null;
 let nextTabId = 1;
 let activeWorkspace = null;
 let currentScreen = "workspace";
+let currentInternalPage = "browser";
 
 const SIDEBAR_WIDTH = 220;
 const TOP_AREA_HEIGHT = 101;
@@ -55,6 +64,10 @@ function createMainWindow() {
     updateActiveTabBounds();
   });
 
+  mainWindow.on("close", () => {
+    saveActiveWorkspaceTabs();
+  });
+
   mainWindow.on("closed", () => {
     closeAllTabs();
 
@@ -62,6 +75,7 @@ function createMainWindow() {
     activeTabId = null;
     activeWorkspace = null;
     currentScreen = "workspace";
+    currentInternalPage = "browser";
   });
 }
 
@@ -71,9 +85,12 @@ function createTab() {
     currentScreen
   );
 
-  if (currentScreen !== "browser") {
+  if (
+    currentScreen !== "browser" ||
+    !activeWorkspace
+  ) {
     console.error(
-      "Tab blockiert. Aktueller Bildschirm:",
+      "Tab blockiert. Kein aktiver Browser-Workspace.",
       currentScreen
     );
 
@@ -88,7 +105,10 @@ function createTab() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      partition: getWorkspacePartition(
+        activeWorkspace.id
+      )
     }
   });
 
@@ -243,13 +263,16 @@ function switchToTab(tabId) {
 
   activeTabId = numericTabId;
 
-  if (nextTab.url !== "") {
+  if (
+    nextTab.url !== "" &&
+    currentInternalPage === "browser"
+  ) {
     mainWindow.contentView.addChildView(
       nextTab.view
     );
 
-    updateActiveTabBounds();
-  }
+  updateActiveTabBounds();
+}
 
   sendTabsUpdated();
   sendPageInformation(nextTab);
@@ -322,8 +345,109 @@ function closeAllTabs() {
   activeTabId = null;
 }
 
+function saveActiveWorkspaceTabs() {
+  if (!activeWorkspace || tabs.size === 0) {
+    return;
+  }
+
+  const tabList = Array.from(tabs.values());
+
+  const savedTabs = tabList.map((tab) => {
+    return {
+      title: tab.title || "Neuer Tab",
+      url: tab.url || ""
+    };
+  });
+
+  const activeTabIndex = tabList.findIndex(
+    (tab) => tab.id === activeTabId
+  );
+
+  saveWorkspaceTabs(
+    activeWorkspace.id,
+    savedTabs,
+    activeTabIndex >= 0 ? activeTabIndex : 0
+  );
+
+  console.log(
+    "Tabs für Workspace gespeichert:",
+    activeWorkspace.name,
+    savedTabs.length
+  );
+}
+
+function restoreActiveWorkspaceTabs() {
+  if (!activeWorkspace) {
+    return;
+  }
+
+  const workspaceState = loadWorkspaceTabs(
+    activeWorkspace.id
+  );
+
+  const savedTabs = workspaceState.tabs;
+
+  if (!Array.isArray(savedTabs) || savedTabs.length === 0) {
+    createTab();
+    return;
+  }
+
+  const restoredTabIds = [];
+
+  for (const savedTab of savedTabs) {
+    const restoredTab = createTab();
+
+    if (!restoredTab) {
+      continue;
+    }
+
+    restoredTab.title =
+      savedTab.title || "Neuer Tab";
+
+    restoredTabIds.push(restoredTab.id);
+
+    if (
+      savedTab.url &&
+      String(savedTab.url).trim() !== ""
+    ) {
+      loadUrlInTab(
+        restoredTab,
+        String(savedTab.url)
+      );
+    }
+  }
+
+  if (restoredTabIds.length === 0) {
+    createTab();
+    return;
+  }
+
+  const savedActiveTabIndex =
+    workspaceState.activeTabIndex;
+
+  const validActiveTabIndex = Math.min(
+    Math.max(savedActiveTabIndex, 0),
+    restoredTabIds.length - 1
+  );
+
+  const restoredActiveTabId =
+    restoredTabIds[validActiveTabIndex];
+
+  switchToTab(restoredActiveTabId);
+
+  console.log(
+    "Tabs für Workspace wiederhergestellt:",
+    activeWorkspace.name,
+    restoredTabIds.length
+  );
+}
+
 function updateActiveTabBounds() {
-  if (!mainWindow || activeTabId === null) {
+  if (
+    !mainWindow ||
+    activeTabId === null ||
+    currentInternalPage !== "browser"
+  ) {
     return;
   }
 
@@ -353,7 +477,11 @@ function updateActiveTabBounds() {
 }
 
 function showTabView(tab) {
-  if (!mainWindow || !tab) {
+  if (
+    !mainWindow ||
+    !tab ||
+    currentInternalPage !== "browser"
+  ) {
     return;
   }
 
@@ -588,6 +716,19 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle(
+  "workspace:get-tab-count",
+  (_event, workspaceId) => {
+    if (!workspaceId) {
+      return 0;
+    }
+
+    return getWorkspaceTabCount(
+      String(workspaceId)
+    );
+  }
+);
+
 ipcMain.on(
   "workspace:open",
   (_event, workspace) => {
@@ -608,6 +749,7 @@ ipcMain.on(
     closeAllTabs();
     activeTabId = null;
     currentScreen = "browser";
+    currentInternalPage = "browser";
     console.log(
       "Workspace geöffnet:",
       activeWorkspace.name,
@@ -627,15 +769,68 @@ ipcMain.on(
       return;
     }
 
+    saveActiveWorkspaceTabs();
     closeAllTabs();
 
     activeTabId = null;
     activeWorkspace = null;
     currentScreen = "workspace";
+    currentInternalPage = "browser";
 
     mainWindow.loadFile(
       path.join(__dirname, "workspace.html")
     );
+  }
+);
+ipcMain.on(
+  "browser:show-internal-page",
+  (_event, pageName) => {
+    if (
+      !mainWindow ||
+      mainWindow.isDestroyed()
+    ) {
+      return;
+    }
+
+    const allowedPages = [
+      "browser",
+      "sources"
+    ];
+
+    if (!allowedPages.includes(pageName)) {
+      return;
+    }
+
+    currentInternalPage = pageName;
+
+    const activeTab = tabs.get(activeTabId);
+
+    if (pageName === "sources") {
+      if (activeTab) {
+        const currentChildren =
+          mainWindow.contentView.children;
+
+        if (
+          currentChildren.includes(
+            activeTab.view
+          )
+        ) {
+          mainWindow.contentView.removeChildView(
+            activeTab.view
+          );
+        }
+      }
+
+      return;
+    }
+
+    if (
+      pageName === "browser" &&
+      activeTab &&
+      activeTab.url !== ""
+    ) {
+      showTabView(activeTab);
+    }
   }
 );
 ipcMain.on("browser:ui-ready", () => {
@@ -644,7 +839,7 @@ ipcMain.on("browser:ui-ready", () => {
   }
 
   if (tabs.size === 0) {
-    createTab();
+    restoreActiveWorkspaceTabs();
   } else {
     sendTabsUpdated();
 
@@ -894,6 +1089,7 @@ function createApplicationMenu() {
 }
 
 app.whenReady().then(() => {
+  initializeStorage(app.getPath("userData"));
   createMainWindow();
   createApplicationMenu();
 
