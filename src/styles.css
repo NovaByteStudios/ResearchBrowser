@@ -248,6 +248,13 @@ input {
   background: var(--accent-hover);
 }
 
+.save-source-button:disabled {
+  color: rgba(255, 255, 255, 0.72);
+  background: #3f5f9f;
+  cursor: wait;
+  opacity: 0.8;
+}
+
 /* Hauptbereich */
 
 .main-area {
@@ -666,6 +673,123 @@ input {
   gap: 12px;
   width: min(960px, 100%);
   margin: 0 auto;
+}
+
+.source-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+  padding: 20px;
+  background: rgba(24, 28, 37, 0.82);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.source-card:hover {
+  background: var(--surface-light);
+  border-color: rgba(91, 140, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+.source-card-information {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.source-domain {
+  margin-bottom: 7px;
+  color: var(--accent-hover);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.source-title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-url {
+  margin: 7px 0 10px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-saved-date {
+  color: #747c8c;
+  font-size: 11px;
+}
+
+.source-card-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.source-action-button {
+  height: 36px;
+  padding: 0 13px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.source-open-button:hover {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.source-delete-button {
+  color: #ff9a93;
+}
+
+.source-delete-button:hover {
+  color: white;
+  background: #b84c4c;
+  border-color: #d45d5d;
+}
+@media (max-width: 760px) {
+  .source-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .source-card-actions {
+    justify-content: flex-end;
+  }s
+
+  .source-action-button {
+    flex: 1;
+  }
 }
 
 @media (max-width: 700px) {

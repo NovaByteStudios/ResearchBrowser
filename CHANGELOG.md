@@ -6,10 +6,27 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 
 ## [Unveröffentlicht]
 
-### Geplant
-- Aktuelle Webseite als Quelle im aktiven Workspace speichern.
-- Quellen dauerhaft und getrennt pro Workspace speichern.
-- Gespeicherte Quellen öffnen und löschen.
+### Hinzugefügt
+- Aktuelle Webseite kann als Quelle im aktiven Workspace gespeichert werden.
+- Quellen werden dauerhaft und getrennt pro Workspace gespeichert.
+- Gespeicherte Quellen werden mit Titel, Domain, URL und Speicherzeitpunkt angezeigt.
+- Gespeicherte Quellen können wieder im Browser geöffnet werden.
+- Gespeicherte Quellen können nach einer Sicherheitsabfrage gelöscht werden.
+- Doppelte Speicherung derselben URL innerhalb eines Workspace wird verhindert.
+- Lokalen Quellenspeicher in `source-data.json` hinzugefügt.
+- Beim Löschen eines Workspace werden auch dessen gespeicherte Quellen entfernt.
+
+### Verbessert
+- Quellenansicht zeigt automatisch entweder den leeren Ausgangszustand oder die gespeicherten Quellen an.
+- Quellen bleiben nach einem vollständigen Neustart der Anwendung erhalten.
+- Quellen verschiedener Workspaces bleiben voneinander getrennt.
+- Nach dem Öffnen einer gespeicherten Quelle wird automatisch zur Browseransicht zurückgekehrt.
+- Schaltfläche „Quelle speichern“ zeigt den laufenden Speichervorgang an.
+
+### Bekannter Fehler
+- Workspace-Karten reagieren momentan nicht auf Mausklicks.
+- Das Drei-Punkte-Menü der Workspace-Karten lässt sich momentan nicht öffnen.
+- Workspaces können weiterhin über die interne Browser-Schnittstelle geöffnet werden.
 
 ## [0.8.0] - 2026-09-26
 

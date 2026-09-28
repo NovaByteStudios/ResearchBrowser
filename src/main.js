@@ -17,6 +17,14 @@ const {
   getWorkspaceTabCount
 } = require("./workspace-storage");
 
+const {
+  initializeSourceStorage,
+  saveSource,
+  loadSources,
+  deleteSource,
+  deleteWorkspaceSources
+} = require("./source-storage");
+
 let mainWindow = null;
 
 const tabs = new Map();
@@ -688,6 +696,9 @@ ipcMain.handle(
 
     try {
       deleteWorkspaceData(normalizedWorkspaceId);
+      deleteWorkspaceSources(
+        normalizedWorkspaceId
+      );
 
       const workspaceSession = session.fromPartition(
         getWorkspacePartition(normalizedWorkspaceId)
@@ -726,6 +737,139 @@ ipcMain.handle(
     return getWorkspaceTabCount(
       String(workspaceId)
     );
+  }
+);
+
+ipcMain.handle(
+  "sources:save-current",
+  () => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error: "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    const activeTab = tabs.get(activeTabId);
+
+    if (
+      !activeTab ||
+      !activeTab.url ||
+      activeTab.url.trim() === ""
+    ) {
+      return {
+        success: false,
+        error: "Es ist keine Webseite geöffnet."
+      };
+    }
+
+    let domain = "";
+
+    try {
+      domain = new URL(activeTab.url).hostname;
+    } catch (error) {
+      console.error(
+        "Domain konnte nicht ermittelt werden:",
+        error
+      );
+    }
+
+    return saveSource(
+      activeWorkspace.id,
+      {
+        title:
+          activeTab.title ||
+          "Unbenannte Quelle",
+        url: activeTab.url,
+        domain
+      }
+    );
+  }
+);
+
+ipcMain.handle(
+  "sources:load",
+  () => {
+    if (!activeWorkspace) {
+      return [];
+    }
+
+    return loadSources(
+      activeWorkspace.id
+    );
+  }
+);
+
+ipcMain.handle(
+  "sources:delete",
+  (_event, sourceId) => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error: "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    if (!sourceId) {
+      return {
+        success: false,
+        error: "Es wurde keine Quelle ausgewählt."
+      };
+    }
+
+    return deleteSource(
+      activeWorkspace.id,
+      String(sourceId)
+    );
+  }
+);
+
+ipcMain.handle(
+  "sources:open",
+  (_event, sourceUrl) => {
+    if (
+      !activeWorkspace ||
+      !sourceUrl
+    ) {
+      return {
+        success: false,
+        error: "Die Quelle kann nicht geöffnet werden."
+      };
+    }
+
+    const normalizedUrl =
+      String(sourceUrl).trim();
+
+    if (normalizedUrl === "") {
+      return {
+        success: false,
+        error: "Die Quelle besitzt keine gültige URL."
+      };
+    }
+
+    let activeTab = tabs.get(activeTabId);
+
+    if (!activeTab) {
+      activeTab = createTab();
+    }
+
+    if (!activeTab) {
+      return {
+        success: false,
+        error: "Es konnte kein Browser-Tab erstellt werden."
+      };
+    }
+
+    currentInternalPage = "browser";
+
+    loadUrlInTab(
+      activeTab,
+      normalizedUrl
+    );
+
+    return {
+      success: true
+    };
   }
 );
 
@@ -1090,6 +1234,9 @@ function createApplicationMenu() {
 
 app.whenReady().then(() => {
   initializeStorage(app.getPath("userData"));
+  initializeSourceStorage(
+    app.getPath("userData")
+  );
   createMainWindow();
   createApplicationMenu();
 

@@ -19,6 +19,32 @@ contextBridge.exposeInMainWorld("browserAPI", {
     );
   },
 
+  saveCurrentSource: () => {
+  return ipcRenderer.invoke(
+    "sources:save-current"
+  );
+},
+
+loadSources: () => {
+  return ipcRenderer.invoke(
+    "sources:load"
+  );
+},
+
+deleteSource: (sourceId) => {
+  return ipcRenderer.invoke(
+    "sources:delete",
+    sourceId
+  );
+},
+
+openSource: (sourceUrl) => {
+  return ipcRenderer.invoke(
+    "sources:open",
+    sourceUrl
+  );
+},
+
   showWorkspaceSelection: () => {
     ipcRenderer.send("workspace:show-selection");
   },

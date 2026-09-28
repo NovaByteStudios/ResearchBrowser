@@ -21,6 +21,10 @@ const tabsContainer =
 
 const newTabButton =
   document.querySelector("#new-tab-button");
+const saveSourceButton =
+  document.querySelector(
+    ".save-source-button"
+  );
 const showWorkspacesButton =
   document.querySelector("#show-workspaces-button");
 const showSourcesButton =
@@ -43,6 +47,16 @@ const startPage =
 
 const sourcesPage =
   document.querySelector("#sources-page");
+
+const sourcesEmptyState =
+  document.querySelector(
+    "#sources-empty-state"
+  );
+
+const sourcesList =
+  document.querySelector(
+    "#sources-list"
+  );
 
 let activeTabId = null;
 const activeWorkspaceName =
@@ -69,6 +83,233 @@ if (savedActiveWorkspace) {
     console.error(
       "Aktiver Workspace konnte nicht gelesen werden:",
       error
+    );
+  }
+}
+function formatSourceDate(savedAt) {
+  if (!savedAt) {
+    return "Unbekanntes Datum";
+  }
+
+  const savedDate = new Date(savedAt);
+
+  if (Number.isNaN(savedDate.getTime())) {
+    return "Unbekanntes Datum";
+  }
+
+  return new Intl.DateTimeFormat(
+    "de-DE",
+    {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }
+  ).format(savedDate);
+}
+async function openSavedSource(source) {
+  try {
+    const result =
+      await window.browserAPI.openSource(
+        source.url
+      );
+
+    if (!result || !result.success) {
+      const errorMessage =
+        result && result.error
+          ? result.error
+          : "Die Quelle konnte nicht geöffnet werden.";
+
+      window.alert(errorMessage);
+      return;
+    }
+
+    showBrowserPage();
+  } catch (error) {
+    console.error(
+      "Quelle konnte nicht geöffnet werden:",
+      error
+    );
+
+    window.alert(
+      "Beim Öffnen der Quelle ist ein Fehler aufgetreten."
+    );
+  }
+}
+async function removeSavedSource(source) {
+  const shouldDelete = window.confirm(
+    `Quelle „${source.title}“ wirklich löschen?`
+  );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  try {
+    const result =
+      await window.browserAPI.deleteSource(
+        source.id
+      );
+
+    if (!result || !result.success) {
+      const errorMessage =
+        result && result.error
+          ? result.error
+          : "Die Quelle konnte nicht gelöscht werden.";
+
+      window.alert(errorMessage);
+      return;
+    }
+
+    await renderSources();
+  } catch (error) {
+    console.error(
+      "Quelle konnte nicht gelöscht werden:",
+      error
+    );
+
+    window.alert(
+      "Beim Löschen der Quelle ist ein Fehler aufgetreten."
+    );
+  }
+}
+function createSourceCard(source) {
+  const sourceCard =
+    document.createElement("article");
+
+  sourceCard.className = "source-card";
+
+  const information =
+    document.createElement("div");
+
+  information.className =
+    "source-card-information";
+
+  const domain =
+    document.createElement("span");
+
+  domain.className = "source-domain";
+  domain.textContent =
+    source.domain || "Unbekannte Website";
+
+  const title =
+    document.createElement("h2");
+
+  title.className = "source-title";
+  title.textContent =
+    source.title || "Unbenannte Quelle";
+
+  const url =
+    document.createElement("p");
+
+  url.className = "source-url";
+  url.textContent = source.url || "";
+  url.title = source.url || "";
+
+  const savedDate =
+    document.createElement("span");
+
+  savedDate.className = "source-saved-date";
+  savedDate.textContent =
+    "Gespeichert am " +
+    formatSourceDate(source.savedAt);
+
+  information.append(
+    domain,
+    title,
+    url,
+    savedDate
+  );
+
+  const actions =
+    document.createElement("div");
+
+  actions.className = "source-card-actions";
+
+  const openButton =
+    document.createElement("button");
+
+  openButton.className =
+    "source-action-button source-open-button";
+
+  openButton.type = "button";
+  openButton.textContent = "Öffnen";
+
+  openButton.addEventListener(
+    "click",
+    () => {
+      openSavedSource(source);
+    }
+  );
+
+  const deleteButton =
+    document.createElement("button");
+
+  deleteButton.className =
+    "source-action-button source-delete-button";
+
+  deleteButton.type = "button";
+  deleteButton.textContent = "Löschen";
+
+  deleteButton.addEventListener(
+    "click",
+    () => {
+      removeSavedSource(source);
+    }
+  );
+
+  actions.append(
+    openButton,
+    deleteButton
+  );
+
+  sourceCard.append(
+    information,
+    actions
+  );
+
+  return sourceCard;
+}
+async function renderSources() {
+  sourcesList.replaceChildren();
+
+  try {
+    const sources =
+      await window.browserAPI.loadSources();
+
+    if (
+      !Array.isArray(sources) ||
+      sources.length === 0
+    ) {
+      sourcesEmptyState.classList.remove(
+        "hidden"
+      );
+
+      return;
+    }
+
+    sourcesEmptyState.classList.add(
+      "hidden"
+    );
+
+    for (const source of sources) {
+      const sourceCard =
+        createSourceCard(source);
+
+      sourcesList.appendChild(
+        sourceCard
+      );
+    }
+  } catch (error) {
+    console.error(
+      "Quellen konnten nicht geladen werden:",
+      error
+    );
+
+    sourcesEmptyState.classList.remove(
+      "hidden"
+    );
+
+    window.alert(
+      "Die gespeicherten Quellen konnten nicht geladen werden."
     );
   }
 }
@@ -99,6 +340,7 @@ function showSourcesPage() {
   window.browserAPI.showInternalPage(
     "sources"
   );
+  renderSources();
 }
 
 function showBrowserPage() {
@@ -128,6 +370,51 @@ function navigate(input) {
   }
 
   window.browserAPI.navigate(cleanedInput);
+}
+
+async function saveCurrentSource() {
+  saveSourceButton.disabled = true;
+  saveSourceButton.textContent =
+    "Wird gespeichert...";
+
+  try {
+    const result =
+      await window.browserAPI.saveCurrentSource();
+
+    if (!result || !result.success) {
+      const errorMessage =
+        result && result.error
+          ? result.error
+          : "Die Quelle konnte nicht gespeichert werden.";
+
+      window.alert(errorMessage);
+      return;
+    }
+
+    window.alert(
+      "Die Webseite wurde als Quelle gespeichert."
+    );
+    if (
+      !sourcesPage.classList.contains(
+        "hidden"
+      )
+    ) {
+      await renderSources();
+    }
+  } catch (error) {
+    console.error(
+      "Quelle konnte nicht gespeichert werden:",
+      error
+    );
+
+    window.alert(
+      "Beim Speichern der Quelle ist ein Fehler aufgetreten."
+    );
+  } finally {
+    saveSourceButton.disabled = false;
+    saveSourceButton.textContent =
+      "Quelle speichern";
+  }
 }
 
 function createTabElement(tab) {
@@ -309,6 +596,13 @@ newTabButton.addEventListener(
   "click",
   () => {
     window.browserAPI.createTab();
+  }
+);
+
+saveSourceButton.addEventListener(
+  "click",
+  () => {
+    saveCurrentSource();
   }
 );
 
