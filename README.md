@@ -76,6 +76,17 @@ Durch die getrennten Chromium-Sitzungen besitzt jeder Workspace eigene:
 
 Tabs innerhalb desselben Workspaces teilen sich eine Sitzung. Verschiedene Workspaces verwenden voneinander getrennte Sitzungen.
 
+#### Quellenverwaltung
+- aktuelle Webseite als Quelle speichern
+- Quellen dauerhaft und getrennt pro Workspace speichern
+- Titel, URL, Domain und Speicherzeitpunkt erfassen
+- gespeicherte Quellen in einer eigenen Quellenansicht anzeigen
+- gespeicherte Quellen wieder im Browser öffnen
+- doppelte Speicherung derselben URL innerhalb eines Workspace verhindern
+- gespeicherte Quellen nach einer Sicherheitsabfrage löschen
+- Quellen nach einem vollständigen App-Neustart wiederherstellen
+- gespeicherte Quellen beim Löschen des zugehörigen Workspace entfernen
+
 ## Noch nicht umgesetzt
 
 Die folgenden Bereiche sind geplant, aber noch nicht vollständig entwickelt:
@@ -89,10 +100,14 @@ Die folgenden Bereiche sind geplant, aber noch nicht vollständig entwickelt:
 - Tabs duplizieren
 - mehrere Fenster
 - Split View
-- Quellenverwaltung
 - Notizsystem mit Markdown
 - Tags und Quellenverknüpfungen
 - PDFs und Screenshots
+- Notizen und Tags für Quellen
+- Prüfstatus für Quellen
+- automatische Erkennung von Autor und Veröffentlichungsdatum
+- Screenshots und Vorschauen für Quellen
+- Suche und Filter innerhalb der Quellenansicht
 - Personen, Unternehmen und Orte
 - Timeline
 - visuelles Research Board
@@ -127,6 +142,8 @@ Auf macOS liegt diese Datei während der Entwicklung ungefähr hier:
 ```
 
 Der Pfad wird von Electron automatisch für die jeweilige Person und das jeweilige Betriebssystem bestimmt. Es ist kein fest eingetragener Benutzerpfad im Programmcode vorhanden.
+
+Gespeicherte Quellen werden getrennt in der Datei `source-data.json` abgelegt. Jede Quelle wird dem zugehörigen Workspace zugeordnet. Die Datei befindet sich ebenfalls im von Electron bereitgestellten App-Datenordner und wird nicht im Git-Repository gespeichert.
 
 ### SQLite
 
@@ -188,6 +205,7 @@ ResearchBrowser/
 - `src/main.js`: Hauptprozess, Fenster, Tabs, Workspaces, WebContentsViews und IPC-Kommunikation
 - `src/preload.js`: sichere Schnittstelle zwischen Oberfläche und Hauptprozess
 - `src/renderer.js`: Bedienung der Browseroberfläche
+- `src/source-storage.js`: dauerhafte und nach Workspaces getrennte Speicherung, Abfrage und Löschung gespeicherter Quellen
 - `src/index.html`: Struktur der Browseroberfläche
 - `src/styles.css`: Gestaltung der Browseroberfläche
 - `src/workspace.html`: Struktur der Workspace-Auswahl
@@ -255,22 +273,20 @@ Research Browser öffnet anschließend die Workspace-Auswahl in einem Electron-F
 
 ### Phase 5: Quellenverwaltung
 
+Grundfunktionen umgesetzt:
 - Webseiten als Quellen speichern
-- Titel, URL und Website erfassen
+- Titel, URL und Website-Domain erfassen
+- Abrufdatum beziehungsweise Speicherzeitpunkt erfassen
+- Quellen getrennt pro Workspace speichern
+- gespeicherte Quellen öffnen und löschen
+- doppelte URLs innerhalb eines Workspace verhindern
+
+Noch geplant:
 - Autor und Veröffentlichungsdatum erkennen, sofern verfügbar
-- Abrufdatum
 - Notizen und Tags
 - Prüfstatus
 - Screenshot oder Vorschau
-
-Geplante Statuswerte:
-
-- Ungeprüft
-- In Prüfung
-- Bestätigt
-- Unsicher
-- Widerlegt
-- Wichtig
+- Suche und Filter
 
 ### Phase 6: Notizen
 
@@ -350,9 +366,31 @@ v0.6.0  Tabs getrennt pro Workspace speichern
 v0.6.1  Browsersitzungen pro Workspace trennen
 v0.7.0  Workspace-Verwaltung mit Umbenennen und Löschen erweitern
 v0.7.1  Workspace-Übersicht mit Tabanzahl, Hervorhebung und reparierten Symbolen verbessern
+v0.8.0  Quellenansicht und zuverlässige Wiederherstellung der Workspace-Tabs
+v0.9.0  Dauerhafte und nach Workspaces getrennte Quellenverwaltung
 ```
 
 Die vollständige Versionshistorie wird ab jetzt in `CHANGELOG.md` gepflegt.
+
+### Entwicklungsstände mit `-dev`
+
+Die Kennzeichnung `-dev` steht für „Development“ und markiert einen noch nicht abgeschlossenen Entwicklungsstand.
+
+Ein Commit mit einer Bezeichnung wie:
+
+`0.9.0-dev - Quellenverwaltung implementiert, Workspace-Klickfehler noch offen`
+
+gehört bereits zur Entwicklung der späteren Version `0.9.0`, ist aber noch keine fertige oder veröffentlichungsbereite Version. Ein solcher Zwischenstand kann neue Funktionen enthalten, gleichzeitig aber noch bekannte Fehler oder unvollständige Arbeiten besitzen.
+
+Dabei gilt:
+
+- `0.9.0-dev` ist ein gesicherter Entwicklungsstand.
+- `0.9.0` ist die fertig getestete Version.
+- Die Versionsnummer in `package.json` wird erst beim Abschluss auf die endgültige Version gesetzt.
+- Entwicklungs-Commits mit `-dev` dienen dazu, funktionierende Zwischenstände vor weiteren Änderungen sicher zu speichern.
+- Ein `-dev`-Stand ist nicht für die normale Veröffentlichung oder Weitergabe vorgesehen.
+
+Die Kennzeichnung `-dev` in einer Commit-Nachricht ist nicht zwingend eine eigene veröffentlichte Version. Sie beschreibt den Entwicklungszustand des Projekts zum Zeitpunkt des Commits.
 
 ## Entwicklungsprinzipien
 

@@ -6,6 +6,13 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 
 ## [Unveröffentlicht]
 
+### Geplant
+- Notizen und Tags für gespeicherte Quellen ergänzen.
+- Prüfstatus für Quellen hinzufügen.
+- Quellen durchsuchen und filtern.
+
+## [0.9.0] - 2026-09-28
+
 ### Hinzugefügt
 - Aktuelle Webseite kann als Quelle im aktiven Workspace gespeichert werden.
 - Quellen werden dauerhaft und getrennt pro Workspace gespeichert.
@@ -22,11 +29,12 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Quellen verschiedener Workspaces bleiben voneinander getrennt.
 - Nach dem Öffnen einer gespeicherten Quelle wird automatisch zur Browseransicht zurückgekehrt.
 - Schaltfläche „Quelle speichern“ zeigt den laufenden Speichervorgang an.
+- Drei-Punkte-Menü der Workspace-Karten vollständig gestaltet und wieder sichtbar gemacht.
 
-### Bekannter Fehler
-- Workspace-Karten reagieren momentan nicht auf Mausklicks.
-- Das Drei-Punkte-Menü der Workspace-Karten lässt sich momentan nicht öffnen.
-- Workspaces können weiterhin über die interne Browser-Schnittstelle geöffnet werden.
+### Behoben
+- Fehlende Darstellung des Drei-Punkte-Menüs in der Workspace-Auswahl behoben.
+- Workspace-Daten werden beim Löschen jetzt vollständig einschließlich gespeicherter Quellen entfernt.
+- Bekannten Darstellungsfehler des Workspace-Menüs behoben, der im Entwicklungsstand `0.9.0-dev` noch vorhanden war.
 
 ## [0.8.0] - 2026-09-26
 
