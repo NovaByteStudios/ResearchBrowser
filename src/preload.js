@@ -45,6 +45,37 @@ openSource: (sourceUrl) => {
   );
 },
 
+loadNotes: () => {
+  return ipcRenderer.invoke(
+    "notes:load"
+  );
+},
+
+createNote: (noteData) => {
+  return ipcRenderer.invoke(
+    "notes:create",
+    noteData
+  );
+},
+
+updateNote: (
+  noteId,
+  noteData
+) => {
+  return ipcRenderer.invoke(
+    "notes:update",
+    noteId,
+    noteData
+  );
+},
+
+deleteNote: (noteId) => {
+  return ipcRenderer.invoke(
+    "notes:delete",
+    noteId
+  );
+},
+
   showWorkspaceSelection: () => {
     ipcRenderer.send("workspace:show-selection");
   },

@@ -64,7 +64,7 @@
             <span class="sidebar-icon" aria-hidden="true">★</span>
             <span class="sidebar-text">Quellen</span>
           </button>
-          <button class="sidebar-button" type="button">
+          <button id="show-notes-button" class="sidebar-button" type="button">
             <span class="sidebar-icon" aria-hidden="true">✎</span>
             <span class="sidebar-text">Notizen</span>
           </button>
@@ -149,6 +149,54 @@
           </div>
 
           <div id="sources-list" class="sources-list" aria-live="polite"></div>
+        </section>
+
+        <section id="notes-page" class="notes-page hidden" aria-labelledby="notes-heading">
+          <header class="notes-header">
+            <div>
+              <span class="page-eyebrow">Aktiver Workspace</span>
+              <h1 id="notes-heading">Notizen</h1>
+              <p>Gedanken, Erkenntnisse und wichtige Informationen für deine Recherche.</p>
+            </div>
+            <div class="notes-header-actions">
+              <button id="new-note-button" class="primary-button" type="button">Neue Notiz</button>
+              <button id="return-to-browser-from-notes-button" class="secondary-button" type="button">Zurück zum Browser</button>
+            </div>
+          </header>
+
+          <div id="notes-empty-state" class="notes-empty-state">
+            <span class="notes-empty-icon" aria-hidden="true">✎</span>
+            <h2>Noch keine Notizen erstellt</h2>
+            <p>Erstelle deine erste Notiz und halte wichtige Erkenntnisse fest.</p>
+            <button id="create-first-note-button" class="primary-button" type="button">Erste Notiz erstellen</button>
+          </div>
+
+          <div id="notes-list" class="notes-list" aria-live="polite"></div>
+
+          <div id="note-editor" class="note-editor hidden" role="dialog" aria-modal="true" aria-labelledby="note-editor-heading">
+            <div class="note-editor-panel">
+              <header class="note-editor-header">
+                <div>
+                  <span class="page-eyebrow">Notizeditor</span>
+                  <h2 id="note-editor-heading">Neue Notiz</h2>
+                </div>
+                <button id="close-note-editor-button" class="icon-button" type="button" aria-label="Notizeditor schließen" title="Schließen">×</button>
+              </header>
+
+              <form id="note-form" class="note-form">
+                <input id="note-id" type="hidden">
+                <label for="note-title">Titel</label>
+                <input id="note-title" name="title" type="text" maxlength="120" placeholder="Titel der Notiz" autocomplete="off" required>
+                <label for="note-content">Inhalt</label>
+                <textarea id="note-content" name="content" rows="12" placeholder="Schreibe hier deine Notiz ..." required></textarea>
+                <p id="note-form-error" class="note-form-error hidden" role="alert"></p>
+                <div class="note-form-actions">
+                  <button id="cancel-note-button" class="secondary-button" type="button">Abbrechen</button>
+                  <button id="save-note-button" class="primary-button" type="submit">Speichern</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </section>
       </main>
     </div>

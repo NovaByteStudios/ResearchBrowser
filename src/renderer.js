@@ -57,6 +57,22 @@ const sourcesList =
   document.querySelector(
     "#sources-list"
   );
+const showNotesButton = document.querySelector("#show-notes-button");
+const notesPage = document.querySelector("#notes-page");
+const notesEmptyState = document.querySelector("#notes-empty-state");
+const notesList = document.querySelector("#notes-list");
+const noteEditor = document.querySelector("#note-editor");
+const noteEditorHeading = document.querySelector("#note-editor-heading");
+const noteForm = document.querySelector("#note-form");
+const noteIdInput = document.querySelector("#note-id");
+const noteTitleInput = document.querySelector("#note-title");
+const noteContentInput = document.querySelector("#note-content");
+const noteFormError = document.querySelector("#note-form-error");
+const newNoteButton = document.querySelector("#new-note-button");
+const createFirstNoteButton = document.querySelector("#create-first-note-button");
+const closeNoteEditorButton = document.querySelector("#close-note-editor-button");
+const cancelNoteButton = document.querySelector("#cancel-note-button");
+const returnToBrowserFromNotesButton = document.querySelector("#return-to-browser-from-notes-button");
 
 let activeTabId = null;
 const activeWorkspaceName =
@@ -331,6 +347,8 @@ function updateSidebarSelection(
 
 function showSourcesPage() {
   startPage.classList.add("hidden");
+  notesPage.classList.add("hidden");
+  closeNoteEditor();
   sourcesPage.classList.remove("hidden");
 
   updateSidebarSelection(
@@ -345,6 +363,8 @@ function showSourcesPage() {
 
 function showBrowserPage() {
   sourcesPage.classList.add("hidden");
+  notesPage.classList.add("hidden");
+  closeNoteEditor();
 
   updateSidebarSelection(
     browserSidebarButton
@@ -362,6 +382,178 @@ function showBrowserPage() {
     activeTabHasPage
   );
 }
+
+function getNotesStorageKey() {
+  const name = activeWorkspaceName ? activeWorkspaceName.textContent.trim() : "default";
+  return "research-browser-notes:" + name;
+}
+
+async function loadNotes() {
+  if (window.browserAPI && typeof window.browserAPI.loadNotes === "function") {
+    const result = await window.browserAPI.loadNotes();
+    return Array.isArray(result) ? result : [];
+  }
+  try {
+    const value = localStorage.getItem(getNotesStorageKey());
+    const notes = value ? JSON.parse(value) : [];
+    return Array.isArray(notes) ? notes : [];
+  } catch (error) {
+    console.error("Notizen konnten nicht gelesen werden:", error);
+    return [];
+  }
+}
+
+function persistNotes(notes) {
+  localStorage.setItem(getNotesStorageKey(), JSON.stringify(notes));
+}
+
+function closeNoteEditor() {
+  if (!noteEditor) return;
+  noteEditor.classList.add("hidden");
+  noteForm.reset();
+  noteIdInput.value = "";
+  noteFormError.textContent = "";
+  noteFormError.classList.add("hidden");
+}
+
+function openNoteEditor(note = null) {
+  noteForm.reset();
+  noteFormError.classList.add("hidden");
+  if (note) {
+    noteEditorHeading.textContent = "Notiz bearbeiten";
+    noteIdInput.value = note.id;
+    noteTitleInput.value = note.title || "";
+    noteContentInput.value = note.content || "";
+  } else {
+    noteEditorHeading.textContent = "Neue Notiz";
+    noteIdInput.value = "";
+  }
+  noteEditor.classList.remove("hidden");
+  noteTitleInput.focus();
+}
+
+function formatNoteDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Unbekanntes Datum" :
+    new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+async function deleteNote(note) {
+  if (!window.confirm(`Notiz „${note.title || "Ohne Titel"}“ wirklich löschen?`)) return;
+  if (window.browserAPI && typeof window.browserAPI.deleteNote === "function") {
+    const result = await window.browserAPI.deleteNote(note.id);
+    if (result && result.success === false) throw new Error(result.error || "Löschen fehlgeschlagen");
+  } else {
+    persistNotes((await loadNotes()).filter((item) => item.id !== note.id));
+  }
+  await renderNotes();
+}
+
+function createNoteCard(note) {
+  const card = document.createElement("article");
+  card.className = "note-card";
+  const info = document.createElement("div");
+  info.className = "note-card-information";
+  const title = document.createElement("h2");
+  title.className = "note-title";
+  title.textContent = note.title || "Ohne Titel";
+  const preview = document.createElement("p");
+  preview.className = "note-preview";
+  preview.textContent = note.content || "";
+  const date = document.createElement("span");
+  date.className = "note-updated-date";
+  date.textContent = "Bearbeitet am " + formatNoteDate(note.updatedAt || note.createdAt);
+  info.append(title, preview, date);
+  const actions = document.createElement("div");
+  actions.className = "note-card-actions";
+  const edit = document.createElement("button");
+  edit.type = "button";
+  edit.className = "note-action-button note-edit-button";
+  edit.textContent = "Bearbeiten";
+  edit.addEventListener("click", () => openNoteEditor(note));
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "note-action-button note-delete-button";
+  remove.textContent = "Löschen";
+  remove.addEventListener("click", () => deleteNote(note).catch((error) => {
+    console.error(error);
+    window.alert("Die Notiz konnte nicht gelöscht werden.");
+  }));
+  actions.append(edit, remove);
+  card.append(info, actions);
+  return card;
+}
+
+async function renderNotes() {
+  notesList.replaceChildren();
+  const notes = await loadNotes();
+  notesEmptyState.classList.toggle("hidden", notes.length > 0);
+  notes.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
+    .forEach((note) => notesList.appendChild(createNoteCard(note)));
+}
+
+function showNotesPage() {
+  startPage.classList.add("hidden");
+  sourcesPage.classList.add("hidden");
+  notesPage.classList.remove("hidden");
+  updateSidebarSelection(showNotesButton);
+  window.browserAPI.showInternalPage("notes");
+  renderNotes().catch(console.error);
+}
+
+async function saveNote(event) {
+  event.preventDefault();
+  const title = noteTitleInput.value.trim();
+  const content = noteContentInput.value.trim();
+  if (!title || !content) {
+    noteFormError.textContent = "Bitte gib einen Titel und einen Inhalt ein.";
+    noteFormError.classList.remove("hidden");
+    return;
+  }
+  const id = noteIdInput.value;
+  const now = new Date().toISOString();
+  try {
+    if (
+      window.browserAPI &&
+      typeof window.browserAPI.createNote === "function" &&
+      typeof window.browserAPI.updateNote === "function"
+    ) {
+      const result = id
+        ? await window.browserAPI.updateNote(id, { title, content })
+        : await window.browserAPI.createNote({ title, content });
+
+      if (!result || result.success === false) {
+        throw new Error(
+          result && result.error
+            ? result.error
+            : "Speichern fehlgeschlagen"
+        );
+      }
+    } else {
+      const notes = await loadNotes();
+      const index = notes.findIndex((note) => note.id === id);
+      if (index >= 0) {
+        notes[index] = { ...notes[index], title, content, updatedAt: now };
+      } else {
+        notes.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          title,
+          content,
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+      persistNotes(notes);
+    }
+    closeNoteEditor();
+    await renderNotes();
+  } catch (error) {
+    console.error(error);
+    noteFormError.textContent = "Die Notiz konnte nicht gespeichert werden.";
+    noteFormError.classList.remove("hidden");
+  }
+}
+
 function navigate(input) {
   const cleanedInput = input.trim();
 
@@ -606,6 +798,20 @@ saveSourceButton.addEventListener(
   }
 );
 
+showNotesButton.addEventListener("click", showNotesPage);
+newNoteButton.addEventListener("click", () => openNoteEditor());
+createFirstNoteButton.addEventListener("click", () => openNoteEditor());
+closeNoteEditorButton.addEventListener("click", closeNoteEditor);
+cancelNoteButton.addEventListener("click", closeNoteEditor);
+returnToBrowserFromNotesButton.addEventListener("click", showBrowserPage);
+noteForm.addEventListener("submit", saveNote);
+noteEditor.addEventListener("click", (event) => {
+  if (event.target === noteEditor) closeNoteEditor();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !noteEditor.classList.contains("hidden")) closeNoteEditor();
+});
+
 showSourcesButton.addEventListener(
   "click",
   () => {
@@ -660,6 +866,9 @@ window.browserAPI.onPageUpdated(
 
   if (
     sourcesPage.classList.contains(
+      "hidden"
+    ) &&
+    notesPage.classList.contains(
       "hidden"
     )
   ) {

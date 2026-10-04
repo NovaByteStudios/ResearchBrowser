@@ -25,6 +25,15 @@ const {
   deleteWorkspaceSources
 } = require("./source-storage");
 
+const {
+  initializeNoteStorage,
+  loadNotes,
+  createNote,
+  updateNote,
+  deleteNote,
+  deleteWorkspaceNotes
+} = require("./note-storage");
+
 let mainWindow = null;
 
 const tabs = new Map();
@@ -695,8 +704,13 @@ ipcMain.handle(
     }
 
     try {
-      deleteWorkspaceData(normalizedWorkspaceId);
+      deleteWorkspaceData(
+        normalizedWorkspaceId
+      );
       deleteWorkspaceSources(
+        normalizedWorkspaceId
+      );
+      deleteWorkspaceNotes(
         normalizedWorkspaceId
       );
 
@@ -873,6 +887,71 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle(
+  "notes:load",
+  () => {
+    if (!activeWorkspace) {
+      return [];
+    }
+
+    return loadNotes(
+      activeWorkspace.id
+    );
+  }
+);
+
+ipcMain.handle(
+  "notes:create",
+  (_event, noteData) => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error: "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    return createNote(
+      activeWorkspace.id,
+      noteData
+    );
+  }
+);
+
+ipcMain.handle(
+  "notes:update",
+  (_event, noteId, noteData) => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error: "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    return updateNote(
+      activeWorkspace.id,
+      noteId,
+      noteData
+    );
+  }
+);
+
+ipcMain.handle(
+  "notes:delete",
+  (_event, noteId) => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error: "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    return deleteNote(
+      activeWorkspace.id,
+      noteId
+    );
+  }
+);
+
 ipcMain.on(
   "workspace:open",
   (_event, workspace) => {
@@ -938,7 +1017,8 @@ ipcMain.on(
 
     const allowedPages = [
       "browser",
-      "sources"
+      "sources",
+      "notes"
     ];
 
     if (!allowedPages.includes(pageName)) {
@@ -949,7 +1029,10 @@ ipcMain.on(
 
     const activeTab = tabs.get(activeTabId);
 
-    if (pageName === "sources") {
+    if (
+      pageName === "sources" ||
+      pageName === "notes"
+    ) {
       if (activeTab) {
         const currentChildren =
           mainWindow.contentView.children;
@@ -1235,6 +1318,9 @@ function createApplicationMenu() {
 app.whenReady().then(() => {
   initializeStorage(app.getPath("userData"));
   initializeSourceStorage(
+    app.getPath("userData")
+  );
+  initializeNoteStorage(
     app.getPath("userData")
   );
   createMainWindow();

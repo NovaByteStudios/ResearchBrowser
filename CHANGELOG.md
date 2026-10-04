@@ -10,6 +10,26 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Notizen und Tags für gespeicherte Quellen ergänzen.
 - Prüfstatus für Quellen hinzufügen.
 - Quellen durchsuchen und filtern.
+## 0.10.0 – 04.10.2026
+
+### Hinzugefügt
+- Vollständiger Notizenbereich im Research Browser
+- Neue Notizen können erstellt und gespeichert werden
+- Gespeicherte Notizen werden als Karten angezeigt
+- Notizen können bearbeitet und gelöscht werden
+- Notizen werden getrennt nach Workspace gespeichert
+- Notizen bleiben nach einem Neustart erhalten
+
+### Verbessert
+- Interne Navigation unterstützt jetzt den Notizenbereich
+- Browseransicht wird beim Öffnen von Notizen korrekt ausgeblendet
+- Notizeditor kann über Abbrechen, Schließen und Escape verlassen werden
+- Responsive Darstellung des Notizenbereichs
+
+### Behoben
+- Notizen wurden nach dem Speichern nicht angezeigt
+- Schnittstelle zwischen Renderer, Preload und Notizspeicher wurde vereinheitlicht
+- Fehlerhafte und unvollständige Renderer- und CSS-Dateien wurden korrigiert
 
 ## [0.9.0] - 2026-09-28
 
