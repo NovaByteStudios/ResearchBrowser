@@ -66,6 +66,7 @@ const noteEditorHeading = document.querySelector("#note-editor-heading");
 const noteForm = document.querySelector("#note-form");
 const noteIdInput = document.querySelector("#note-id");
 const noteTitleInput = document.querySelector("#note-title");
+const noteSourceSelect = document.querySelector("#note-source");
 const noteContentInput = document.querySelector("#note-content");
 const noteFormError = document.querySelector("#note-form-error");
 const newNoteButton = document.querySelector("#new-note-button");
@@ -75,6 +76,7 @@ const cancelNoteButton = document.querySelector("#cancel-note-button");
 const returnToBrowserFromNotesButton = document.querySelector("#return-to-browser-from-notes-button");
 
 let activeTabId = null;
+let availableNoteSources = [];
 const activeWorkspaceName =
   document.querySelector(".workspace-name strong");
 const savedActiveWorkspace =
@@ -256,6 +258,23 @@ function createSourceCard(source) {
     }
   );
 
+  const createNoteButton =
+    document.createElement("button");
+
+  createNoteButton.className =
+    "source-action-button source-note-button";
+
+  createNoteButton.type = "button";
+  createNoteButton.textContent = "Notiz erstellen";
+
+  createNoteButton.addEventListener(
+    "click",
+    async () => {
+      showNotesPage();
+      await openNoteEditor(null, source.id);
+    }
+  );
+
   const deleteButton =
     document.createElement("button");
 
@@ -274,6 +293,7 @@ function createSourceCard(source) {
 
   actions.append(
     openButton,
+    createNoteButton,
     deleteButton
   );
 
@@ -416,9 +436,44 @@ function closeNoteEditor() {
   noteFormError.classList.add("hidden");
 }
 
-function openNoteEditor(note = null) {
+async function loadNoteSourceOptions(selectedSourceId = "") {
+  noteSourceSelect.replaceChildren();
+
+  const emptyOption = document.createElement("option");
+  emptyOption.value = "";
+  emptyOption.textContent = "Keine Quelle verknüpfen";
+  noteSourceSelect.appendChild(emptyOption);
+
+  try {
+    availableNoteSources = await window.browserAPI.loadSources();
+    if (!Array.isArray(availableNoteSources)) {
+      availableNoteSources = [];
+    }
+  } catch (error) {
+    console.error("Quellen für Notizen konnten nicht geladen werden:", error);
+    availableNoteSources = [];
+  }
+
+  availableNoteSources.forEach((source) => {
+    const option = document.createElement("option");
+    option.value = String(source.id);
+    option.textContent = source.title || source.domain || source.url || "Unbenannte Quelle";
+    noteSourceSelect.appendChild(option);
+  });
+
+  noteSourceSelect.value = selectedSourceId ? String(selectedSourceId) : "";
+}
+
+async function openNoteEditor(note = null, preferredSourceId = "") {
   noteForm.reset();
   noteFormError.classList.add("hidden");
+  noteFormError.textContent = "";
+
+  const selectedSourceId = note && note.sourceId
+    ? note.sourceId
+    : preferredSourceId;
+  await loadNoteSourceOptions(selectedSourceId);
+
   if (note) {
     noteEditorHeading.textContent = "Notiz bearbeiten";
     noteIdInput.value = note.id;
@@ -460,6 +515,39 @@ function createNoteCard(note) {
   const preview = document.createElement("p");
   preview.className = "note-preview";
   preview.textContent = note.content || "";
+
+  const linkedSource = note.sourceId
+    ? availableNoteSources.find((source) => String(source.id) === String(note.sourceId))
+    : null;
+
+  if (note.sourceId) {
+    const sourceBox = document.createElement("div");
+    sourceBox.className = "note-linked-source";
+    const sourceLabel = document.createElement("span");
+    sourceLabel.className = "note-linked-source-label";
+    sourceLabel.textContent = linkedSource
+      ? "Quelle: " + (linkedSource.title || linkedSource.domain || linkedSource.url)
+      : "Verknüpfte Quelle ist nicht mehr verfügbar";
+    sourceBox.appendChild(sourceLabel);
+
+    if (linkedSource && linkedSource.url) {
+      const openSourceButton = document.createElement("button");
+      openSourceButton.type = "button";
+      openSourceButton.className = "note-source-open-button";
+      openSourceButton.textContent = "Quelle öffnen";
+      openSourceButton.addEventListener("click", async () => {
+        const result = await window.browserAPI.openSource(linkedSource.url);
+        if (result && result.success) {
+          showBrowserPage();
+        } else {
+          window.alert(result?.error || "Die Quelle konnte nicht geöffnet werden.");
+        }
+      });
+      sourceBox.appendChild(openSourceButton);
+    }
+    info.appendChild(sourceBox);
+  }
+
   const date = document.createElement("span");
   date.className = "note-updated-date";
   date.textContent = "Bearbeitet am " + formatNoteDate(note.updatedAt || note.createdAt);
@@ -483,9 +571,17 @@ function createNoteCard(note) {
   card.append(info, actions);
   return card;
 }
-
 async function renderNotes() {
   notesList.replaceChildren();
+  try {
+    availableNoteSources = await window.browserAPI.loadSources();
+    if (!Array.isArray(availableNoteSources)) {
+      availableNoteSources = [];
+    }
+  } catch (error) {
+    console.error("Quellen für Notizkarten konnten nicht geladen werden:", error);
+    availableNoteSources = [];
+  }
   const notes = await loadNotes();
   notesEmptyState.classList.toggle("hidden", notes.length > 0);
   notes.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
@@ -505,6 +601,7 @@ async function saveNote(event) {
   event.preventDefault();
   const title = noteTitleInput.value.trim();
   const content = noteContentInput.value.trim();
+  const sourceId = noteSourceSelect.value || null;
   if (!title || !content) {
     noteFormError.textContent = "Bitte gib einen Titel und einen Inhalt ein.";
     noteFormError.classList.remove("hidden");
@@ -519,8 +616,8 @@ async function saveNote(event) {
       typeof window.browserAPI.updateNote === "function"
     ) {
       const result = id
-        ? await window.browserAPI.updateNote(id, { title, content })
-        : await window.browserAPI.createNote({ title, content });
+        ? await window.browserAPI.updateNote(id, { title, content, sourceId })
+        : await window.browserAPI.createNote({ title, content, sourceId });
 
       if (!result || result.success === false) {
         throw new Error(
@@ -533,12 +630,13 @@ async function saveNote(event) {
       const notes = await loadNotes();
       const index = notes.findIndex((note) => note.id === id);
       if (index >= 0) {
-        notes[index] = { ...notes[index], title, content, updatedAt: now };
+        notes[index] = { ...notes[index], title, content, sourceId, updatedAt: now };
       } else {
         notes.push({
           id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
           title,
           content,
+          sourceId,
           createdAt: now,
           updatedAt: now
         });

@@ -187,6 +187,15 @@
                 <input id="note-id" type="hidden">
                 <label for="note-title">Titel</label>
                 <input id="note-title" name="title" type="text" maxlength="120" placeholder="Titel der Notiz" autocomplete="off" required>
+
+                <label for="note-source">Verknüpfte Quelle</label>
+                <select id="note-source" name="sourceId">
+                  <option value="">Keine Quelle verknüpfen</option>
+                </select>
+                <p id="note-source-help" class="note-field-help">
+                  Optional: Ordne die Notiz einer gespeicherten Quelle dieses Workspaces zu.
+                </p>
+
                 <label for="note-content">Inhalt</label>
                 <textarea id="note-content" name="content" rows="12" placeholder="Schreibe hier deine Notiz ..." required></textarea>
                 <p id="note-form-error" class="note-form-error hidden" role="alert"></p>

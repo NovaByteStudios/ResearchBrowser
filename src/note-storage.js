@@ -134,6 +134,13 @@ function createNote(
   const content =
     String(noteData?.content || "").trim();
 
+  const sourceId =
+    noteData?.sourceId === null ||
+    noteData?.sourceId === undefined ||
+    String(noteData.sourceId).trim() === ""
+      ? null
+      : String(noteData.sourceId).trim();
+
   if (title === "" && content === "") {
     return {
       success: false,
@@ -173,6 +180,7 @@ function createNote(
       title || "Unbenannte Notiz",
 
     content,
+    sourceId,
 
     createdAt: timestamp,
     updatedAt: timestamp
@@ -208,6 +216,13 @@ function updateNote(
 
   const content =
     String(noteData?.content || "").trim();
+
+  const sourceId =
+    noteData?.sourceId === null ||
+    noteData?.sourceId === undefined ||
+    String(noteData.sourceId).trim() === ""
+      ? null
+      : String(noteData.sourceId).trim();
 
   if (title === "" && content === "") {
     return {
@@ -249,6 +264,7 @@ function updateNote(
     title || "Unbenannte Notiz";
 
   note.content = content;
+  note.sourceId = sourceId;
   note.updatedAt = new Date().toISOString();
 
   writeStorage(storage);

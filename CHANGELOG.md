@@ -10,6 +10,25 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Notizen und Tags für gespeicherte Quellen ergänzen.
 - Prüfstatus für Quellen hinzufügen.
 - Quellen durchsuchen und filtern.
+## 0.10.1 – 05.10.2026
+
+### Hinzugefügt
+- Notizen können optional mit gespeicherten Quellen verknüpft werden
+- Verknüpfte Quellen werden auf Notizkarten angezeigt
+- Verknüpfte Quellen können direkt aus einer Notiz geöffnet werden
+- Quellenkarten besitzen die neue Aktion „Notiz erstellen“
+- Beim Erstellen einer Notiz aus einer Quelle wird die Quelle automatisch vorausgewählt
+
+### Verbessert
+- Quellenverknüpfungen können beim Bearbeiten geändert oder entfernt werden
+- Notizeditor lädt die Quellen des aktuellen Workspaces
+- Responsive Darstellung der Quelleninformationen auf Notizkarten
+- Bestehende Notizen ohne Quellenverknüpfung bleiben kompatibel
+
+### Verhalten
+- Wird eine verknüpfte Quelle gelöscht, bleibt die Notiz erhalten
+- Eine nicht mehr vorhandene Quelle wird auf der Notizkarte als nicht verfügbar gekennzeichnet
+
 ## 0.10.0 – 04.10.2026
 
 ### Hinzugefügt

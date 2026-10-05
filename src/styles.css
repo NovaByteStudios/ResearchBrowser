@@ -952,3 +952,96 @@ input {
   .note-action-button,
   .note-form-actions button { width: 100%; }
 }
+
+/* Quellenverknuepfung in Notizen */
+.note-form select {
+  width: 100%;
+  height: 43px;
+  padding: 0 38px 0 13px;
+  color: var(--text);
+  font: inherit;
+  background-color: #0d1016;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.note-form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.note-form select:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.note-field-help {
+  margin: -2px 0 5px;
+  color: #747c8c;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.note-linked-source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 11px 12px;
+  background: rgba(91, 140, 255, 0.1);
+  border: 1px solid rgba(91, 140, 255, 0.28);
+  border-radius: 10px;
+}
+
+.note-linked-source-label {
+  min-width: 0;
+  overflow: hidden;
+  color: #b9caff;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.note-source-open-button {
+  height: 30px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  color: #dbe5ff;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(91, 140, 255, 0.16);
+  border: 1px solid rgba(91, 140, 255, 0.42);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease,
+    border-color 160ms ease;
+}
+
+.note-source-open-button:hover {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.note-source-open-button:focus-visible,
+.note-form select:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .note-linked-source {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .note-source-open-button {
+    width: 100%;
+  }
+}
