@@ -1,231 +1,200 @@
 # Research Browser
 
-**Research Browser** ist eine Desktop-Anwendung für strukturierte Recherchen. Die Anwendung verbindet einen echten, auf Chromium basierenden Webbrowser mit getrennten Workspaces, gespeicherten Browser-Tabs und späteren Werkzeugen für Quellen, Notizen, Timelines und KI-gestützte Auswertungen.
+Research Browser ist eine workspacebasierte Desktop-Anwendung für strukturierte Online-Recherche. Die Anwendung verbindet einen integrierten Browser mit getrennten Arbeitsbereichen, dauerhafter Tab-Speicherung, Quellenverwaltung und Notizen.
 
-Das Projekt wird mit Electron und Visual Studio Code entwickelt. Der aktuelle Schwerpunkt liegt auf einem stabilen Browser-Grundgerüst und der technischen Trennung der Workspaces.
+**Aktueller Entwicklungsstand:** Version `0.10.2`
 
-> **Entwicklungsstatus:** Frühe Entwicklungsversion. Research Browser ist noch nicht für den produktiven Einsatz oder die Weitergabe an andere Personen bereit.
+## Ziel des Projekts
 
-## Projektidee
+Bei umfangreichen Recherchen verteilen sich Webseiten, Quellen und Notizen schnell auf viele Browser-Tabs und verschiedene Programme. Research Browser bündelt diese Inhalte in getrennten Workspaces.
 
-Normale Webbrowser verwalten Tabs, Verlauf und Lesezeichen meist global. Research Browser verfolgt einen anderen Ansatz: Jede Recherche findet in einem eigenen Workspace statt.
+Jeder Workspace besitzt eigene:
 
-Beispiele für Workspaces:
+- geöffnete Browser-Tabs
+- Chromium-Sitzung mit getrennten Cookies und Website-Daten
+- gespeicherte Quellen
+- Notizen
+- Verknüpfungen zwischen Notizen und Quellen
+- Notiz-Tags
 
-- 🔎 Fall Recherche
-- 🎓 Schule
-- 📰 Nachrichten
-- 📷 Fotografie
-
-Beim Öffnen eines Workspaces arbeitet die Person ausschließlich in diesem Recherchebereich. Tabs und weitere Daten sollen automatisch dem aktiven Workspace zugeordnet werden, ohne dass bei jedem Speichervorgang ein Ziel ausgewählt werden muss.
+Alle derzeit unterstützten Anwendungsdaten werden lokal gespeichert.
 
 ## Aktueller Funktionsumfang
 
-Die folgenden Funktionen sind bereits grundsätzlich umgesetzt:
-
 ### Desktop-Anwendung
 
-- Start als echte Electron-Desktop-App auf macOS
-- Chromium als Browser-Engine
-- Entwicklung mit Visual Studio Code
-- dunkle, eigenständige Benutzeroberfläche
-- native macOS-Menüs und Tastenkürzel
+- eigenständige Electron-Anwendung
+- Start über `npm start`
+- Browserfenster mit eigener Titelleiste und Seitenleiste
+- interne Ansichten für Browser, Quellen und Notizen
+- responsive Oberfläche für unterschiedliche Fenstergrößen
 
 ### Browser
 
-- Webseiten laden
-- Eingabe von vollständigen Webadressen
-- automatische Ergänzung von `https://` bei erkannten Domains
-- Suche über Google bei normalen Suchbegriffen
-- Zurück, Vorwärts und Neu laden
-- mehrere echte Browser-Tabs
-- neue Tabs erstellen
-- Tabs wechseln
-- Tabs schließen
-- automatische Seitentitel in der Tab-Leiste
-- sichtbare Ladeanimation
+- Webseiten über URL oder Suchbegriff öffnen
+- mehrere Tabs erstellen, wechseln und schließen
+- aktive URL und Seitentitel anzeigen
+- Navigation vorwärts und zurück
+- Webseite neu laden
+- neue Tabs über die Oberfläche oder Tastenkürzel öffnen
+- gespeicherte Quellen wieder im Browser öffnen
 
 ### Tastenkürzel
 
-- `Cmd + T`: neuer Tab
-- `Cmd + W`: aktiven Tab schließen
-- `Cmd + L`: Adressleiste auswählen
-- `Cmd + R`: aktive Webseite neu laden
-- `Cmd + Z`: Texteingabe rückgängig machen
-- `Cmd + Shift + Z`: rückgängig gemachte Texteingabe wiederholen
+- `Cmd/Ctrl + T`: neuen Tab öffnen
+- `Cmd/Ctrl + W`: aktiven Tab schließen
+- `Cmd/Ctrl + L`: Adressleiste fokussieren
+- `Cmd/Ctrl + R`: aktive Webseite neu laden
+- `Escape`: geöffneten Notizeditor schließen
 
 ### Workspaces
 
-- Workspace-Auswahl beim App-Start
 - neue Workspaces erstellen
-- Workspaces lokal speichern
-- aktiven Workspace in der Seitenleiste anzeigen
-- zur Workspace-Auswahl zurückkehren
+- vorhandene Workspaces öffnen
+- Workspaces umbenennen
+- Workspaces über ein Drei-Punkte-Menü verwalten
+- Workspaces samt zugehöriger lokaler Daten löschen
+- zuletzt verwendete Workspaces anzeigen
+- Anzahl gespeicherter Tabs anzeigen
 - geöffnete Tabs pro Workspace speichern
-- Tabs beim erneuten Öffnen eines Workspaces wiederherstellen
-- zuletzt aktiven Tab eines Workspaces merken
-- getrennte Chromium-Sitzungen pro Workspace
+- Tabs nach Workspace-Wechsel und App-Neustart wiederherstellen
+- zuletzt aktiven Tab wieder auswählen
+- Cookies, Anmeldungen, Cache und Website-Speicher durch eigene Chromium-Partitionen trennen
 
-Durch die getrennten Chromium-Sitzungen besitzt jeder Workspace eigene:
+### Quellenverwaltung
 
-- Cookies
-- Website-Anmeldungen
-- Website-Speicherdaten
-- Cache-Daten
-- Service Worker
-
-Tabs innerhalb desselben Workspaces teilen sich eine Sitzung. Verschiedene Workspaces verwenden voneinander getrennte Sitzungen.
-
-#### Quellenverwaltung
 - aktuelle Webseite als Quelle speichern
 - Quellen dauerhaft und getrennt pro Workspace speichern
-- Titel, URL, Domain und Speicherzeitpunkt erfassen
-- gespeicherte Quellen in einer eigenen Quellenansicht anzeigen
-- gespeicherte Quellen wieder im Browser öffnen
+- Titel, Domain, URL und Speicherzeitpunkt anzeigen
 - doppelte Speicherung derselben URL innerhalb eines Workspace verhindern
-- gespeicherte Quellen nach einer Sicherheitsabfrage löschen
-- Quellen nach einem vollständigen App-Neustart wiederherstellen
-- gespeicherte Quellen beim Löschen des zugehörigen Workspace entfernen
+- gespeicherte Quellen wieder im Browser öffnen
+- Quellen nach Sicherheitsabfrage löschen
+- aus einer Quellenkarte direkt eine neue Notiz erstellen
+- zugehörige Quelle im Notizeditor automatisch vorauswählen
+- Quellen beim Löschen eines Workspace mit entfernen
 
-## Noch nicht umgesetzt
+### Notizverwaltung
 
-Die folgenden Bereiche sind geplant, aber noch nicht vollständig entwickelt:
+- Notizen dauerhaft und getrennt pro Workspace speichern
+- neue Notizen erstellen
+- vorhandene Notizen bearbeiten
+- Notizen nach Sicherheitsabfrage löschen
+- Titel und Inhalt auf Notizkarten anzeigen
+- Bearbeitungszeitpunkt anzeigen
+- Notizen optional mit gespeicherten Quellen verknüpfen
+- verknüpfte Quelle auf der Notizkarte anzeigen
+- verknüpfte Quelle direkt im Browser öffnen
+- Quellenverknüpfung bearbeiten oder entfernen
+- bestehende Notizen ohne Quellenverknüpfung weiterhin laden
 
-- Browserverlauf pro Workspace
-- Lesezeichen
-- Downloadverwaltung
-- Find-in-Page
-- Zoomsteuerung
-- angeheftete Tabs
-- Tabs duplizieren
-- mehrere Fenster
-- Split View
-- Notizsystem mit Markdown
-- Tags und Quellenverknüpfungen
-- PDFs und Screenshots
-- Notizen und Tags für Quellen
-- Prüfstatus für Quellen
-- automatische Erkennung von Autor und Veröffentlichungsdatum
-- Screenshots und Vorschauen für Quellen
-- Suche und Filter innerhalb der Quellenansicht
-- Personen, Unternehmen und Orte
-- Timeline
-- visuelles Research Board
-- Google-Drive-Synchronisierung
-- Ollama-KI
-- App-Paket für die normale macOS-Installation
-- automatische Updates
-- umfangreiche Tests und Fehlerbehandlung
+### Tags für Notizen
 
-## Technische Grundlage
+- mehrere Tags über eine kommagetrennte Eingabe erfassen
+- Tags beim Erstellen und Bearbeiten einer Notiz speichern
+- vorhandene Tags beim Bearbeiten erneut anzeigen
+- Tags als Chips auf Notizkarten darstellen
+- leere Tags automatisch entfernen
+- überflüssige Leerzeichen bereinigen
+- doppelte Tags unabhängig von Groß- und Kleinschreibung verhindern
+- bestehende Notizen ohne Tags weiterhin laden
 
-### Electron
+## Lokale Datenspeicherung
 
-Electron stellt das Desktop-Fenster bereit und verbindet die Benutzeroberfläche mit Chromium und Node.js.
+Research Browser speichert die Anwendungsdaten im Electron-Ordner `userData`. Die Speicherdateien werden beim ersten Bedarf automatisch angelegt.
 
-### Chromium
+- `workspace-data.json`: geöffnete Tabs und aktiver Tab je Workspace
+- `source-data.json`: gespeicherte Quellen je Workspace
+- `note-data.json`: gespeicherte Notizen, Quellenverknüpfungen und Tags je Workspace
 
-Jeder Browser-Tab verwendet eine eigene `WebContentsView`. Dadurch können mehrere echte Webseiten gleichzeitig geöffnet und getrennt verwaltet werden.
-
-### HTML, CSS und JavaScript
-
-Die Benutzeroberfläche wird zunächst ohne zusätzliches Frontend-Framework entwickelt. Dadurch bleibt das Projekt für Einsteiger besser nachvollziehbar.
-
-### Lokale Speicherung
-
-Workspace-Namen werden derzeit lokal gespeichert. Tab-Zustände werden in einer JSON-Datei im benutzerspezifischen App-Datenordner abgelegt.
-
-Auf macOS liegt diese Datei während der Entwicklung ungefähr hier:
-
-```text
-~/Library/Application Support/research-browser/workspace-data.json
-```
-
-Der Pfad wird von Electron automatisch für die jeweilige Person und das jeweilige Betriebssystem bestimmt. Es ist kein fest eingetragener Benutzerpfad im Programmcode vorhanden.
-
-Gespeicherte Quellen werden getrennt in der Datei `source-data.json` abgelegt. Jede Quelle wird dem zugehörigen Workspace zugeordnet. Die Datei befindet sich ebenfalls im von Electron bereitgestellten App-Datenordner und wird nicht im Git-Repository gespeichert.
-
-### SQLite
-
-SQLite ist für eine spätere Entwicklungsphase vorgesehen. Die Datenbank soll langfristig unter anderem Quellen, Notizen, Ereignisse, Personen, Unternehmen, Orte und Verknüpfungen verwalten.
-
-### Ollama
-
-Die geplanten KI-Funktionen sollen lokal über Ollama ausgeführt werden. Ein externer API-Schlüssel ist dafür nicht erforderlich. Die KI soll möglichst nur mit den Daten des aktuell geöffneten Workspaces arbeiten.
-
-### Google Drive
-
-Google Drive soll später als optionale Synchronisierungs- und Backup-Lösung integriert werden. Die lokale Arbeit soll weiterhin ohne Internetverbindung möglich bleiben.
+Die JSON-Dateien gehören nicht in das Git-Repository, da sie persönliche lokale Anwendungsdaten enthalten.
 
 ## Datenschutz und Datentrennung
 
-Research Browser ist als lokale Anwendung geplant.
-
-Aktuell gilt:
-
-- Workspace-Daten werden lokal auf dem jeweiligen Computer gespeichert.
-- Andere Installationen erhalten nicht automatisch dieselben Workspaces oder Recherchedaten.
-- Persönliche Workspace-Daten befinden sich nicht im Git-Repository.
-- GitHub enthält nur den Programmcode und die Projektdokumentation.
-- Jeder Betriebssystembenutzer erhält einen eigenen App-Datenordner.
-- Chromium-Sitzungen werden pro Workspace getrennt.
-
-Eine spätere Google-Drive-Verbindung soll optional sein. Vor einer Veröffentlichung benötigt das Projekt zusätzlich ein vollständiges Datenschutz-, Berechtigungs- und Sicherheitskonzept.
+- Workspace-Daten werden lokal gespeichert.
+- Jeder Workspace verwendet eine eigene persistente Chromium-Partition.
+- Cookies und Website-Sitzungen verschiedener Workspaces bleiben getrennt.
+- Notizen und Quellen werden anhand der Workspace-ID getrennt gespeichert.
+- Beim Löschen eines Workspace werden die zugehörigen gespeicherten Tabs, Quellen und Notizen entfernt.
+- Research Browser besitzt derzeit keine Cloud-Synchronisierung.
 
 ## Projektstruktur
 
 ```text
-ResearchBrowser/
-├── assets/
-│   └── icons/
-│       ├── delete.svg
-│       ├── more.svg
-│       ├── rename.svg
-│       ├── workspace-add.svg
-│       └── workspace.svg
-├── docs/
+research-browser/
 ├── src/
 │   ├── index.html
 │   ├── main.js
+│   ├── note-storage.js
 │   ├── preload.js
 │   ├── renderer.js
+│   ├── source-storage.js
 │   ├── styles.css
-│   ├── workspace.html
+│   ├── tag-utils.js
+│   ├── workspace-storage.js
 │   ├── workspace.css
-│   ├── workspace.js
-│   └── workspace-storage.js
-├── .gitignore
+│   ├── workspace.html
+│   └── workspace.js
+├── CHANGELOG.md
+├── README.md
 ├── package-lock.json
-├── package.json
-└── README.md
+└── package.json
 ```
 
-### Wichtige Dateien
+## Beschreibung der wichtigsten Dateien
 
-- `src/main.js`: Hauptprozess, Fenster, Tabs, Workspaces, WebContentsViews und IPC-Kommunikation
-- `src/preload.js`: sichere Schnittstelle zwischen Oberfläche und Hauptprozess
-- `src/renderer.js`: Bedienung der Browseroberfläche
-- `src/source-storage.js`: dauerhafte und nach Workspaces getrennte Speicherung, Abfrage und Löschung gespeicherter Quellen
-- `src/index.html`: Struktur der Browseroberfläche
-- `src/styles.css`: Gestaltung der Browseroberfläche
+### Hauptanwendung
+
+- `src/main.js`: Electron-Hauptprozess, Fensterverwaltung, Browser-Tabs, WebContentsViews, Workspace-Wechsel und IPC-Handler
+- `src/preload.js`: sichere Schnittstelle zwischen Renderer und Electron-Hauptprozess
+- `src/renderer.js`: Benutzeroberfläche der Browser-, Quellen- und Notizansicht
+
+### Browseroberfläche
+
+- `src/index.html`: Struktur der Hauptoberfläche, internen Ansichten und Formulare
+- `src/styles.css`: Gestaltung der Browseroberfläche, Quellenkarten, Notizkarten und Tag-Chips
+
+### Workspace-Auswahl
+
 - `src/workspace.html`: Struktur der Workspace-Auswahl
-- `src/workspace.css`: Gestaltung der Workspace-Auswahl
-- `src/workspace.js`: Bedienung und lokale Liste der Workspaces
-- `src/workspace-storage.js`: Speicherung und Wiederherstellung der Tabs pro Workspace
+- `src/workspace.js`: Erstellen, Anzeigen, Umbenennen, Öffnen und Löschen von Workspaces
+- `src/workspace.css`: Gestaltung der Workspace-Auswahl und Workspace-Karten
 
-## Anwendung in der Entwicklung starten
+### Lokale Speicherbausteine
+
+- `src/workspace-storage.js`: Speicherung und Wiederherstellung der geöffneten Tabs je Workspace
+- `src/source-storage.js`: Speicherung, Laden und Löschen von Quellen je Workspace
+- `src/note-storage.js`: Speicherung, Bearbeitung und Löschung von Notizen je Workspace
+- `src/tag-utils.js`: gemeinsame Bereinigung und Normalisierung von Tags
+
+### Projektdateien
+
+- `package.json`: Projektinformationen, Version, Startskript und Electron-Abhängigkeit
+- `package-lock.json`: festgeschriebene Versionen der installierten npm-Pakete
+- `CHANGELOG.md`: dokumentierte Änderungen aller Versionen
+- `README.md`: Projektübersicht, Funktionen, Struktur und Entwicklungsinformationen
+
+## Technische Grundlage
+
+- Electron
+- Chromium
+- Node.js
+- HTML
+- CSS
+- JavaScript
+- JSON-Dateien für die lokale Anwendungsspeicherung
+- Electron IPC für die Kommunikation zwischen Renderer und Hauptprozess
+
+## Anwendung lokal starten
 
 ### Voraussetzungen
 
-- macOS
 - Node.js
 - npm
-- Visual Studio Code
-- Git
+- Git für die Versionsverwaltung
 
 ### Installation
 
-Nach dem Herunterladen oder Klonen des Projekts müssen die Abhängigkeiten installiert werden:
+Repository klonen oder den Projektordner öffnen und anschließend im Hauptverzeichnis ausführen:
 
 ```bash
 npm install
@@ -237,190 +206,91 @@ npm install
 npm start
 ```
 
-Research Browser öffnet anschließend die Workspace-Auswahl in einem Electron-Fenster.
+Das Startskript führt `electron .` aus. Der Einstiegspunkt ist `src/main.js`.
 
-## Entwicklungsphasen
+## Entwicklung und Tests
 
-### Phase 1: Electron-Grundgerüst
+Vor einem Commit sollten mindestens folgende Prüfungen durchgeführt werden:
 
-- Desktop-Fenster
-- Chromium
-- zuverlässiger App-Start
+### JavaScript-Syntax prüfen
 
-### Phase 2: Browser-Grundfunktionen
+```bash
+node --check src/main.js
+node --check src/preload.js
+node --check src/renderer.js
+node --check src/workspace.js
+node --check src/workspace-storage.js
+node --check src/source-storage.js
+node --check src/note-storage.js
+node --check src/tag-utils.js
+```
 
-- Navigation
-- Adressleiste
-- Suche
-- Tabs
-- Ladeanzeige
-- Tastenkürzel
+Bei einer erfolgreichen Syntaxprüfung gibt Node.js normalerweise keine Meldung aus.
 
-### Phase 3: Workspace-System
+### Manuelle Funktionstests
 
-- Workspace-Auswahl
-- Workspace-Erstellung
-- getrennte Tabs
-- persistente Tab-Zustände
-- getrennte Chromium-Sitzungen
-
-### Phase 4: Persistente Anwendungsdaten
-
-- robustere Speicherung
-- Datenmigrationen
-- automatische Sicherungen
-- Vorbereitung auf SQLite
-
-### Phase 5: Quellenverwaltung
-
-Grundfunktionen umgesetzt:
-- Webseiten als Quellen speichern
-- Titel, URL und Website-Domain erfassen
-- Abrufdatum beziehungsweise Speicherzeitpunkt erfassen
-- Quellen getrennt pro Workspace speichern
-- gespeicherte Quellen öffnen und löschen
-- doppelte URLs innerhalb eines Workspace verhindern
-
-Noch geplant:
-- Autor und Veröffentlichungsdatum erkennen, sofern verfügbar
-- Notizen und Tags
-- Prüfstatus
-- Screenshot oder Vorschau
-- Suche und Filter
-
-### Phase 6: Notizen
-
-- neue Notizen
-- Bearbeiten und Löschen
-- automatische Speicherung
-- Markdown
-- Tags
-- Quellenverknüpfungen
-- Suche
-
-### Phase 7: Timeline
-
-- Ereignisse mit Datum
-- Beschreibungen
-- Quellen
-- Personen
-- Unternehmen
-- Orte
-- Notizen
-
-### Phase 8: Research Board
-
-- Quellen, Notizen und Rechercheobjekte als Karten
-- visuelle Verbindungen
-- frei anordenbare Rechercheansicht
-
-### Phase 9: Google Drive
-
-- optionale Verbindung
-- Backups
-- Dokumente, PDFs und Screenshots
-- Offline-Arbeit
-- spätere Synchronisierung
-
-### Phase 10: Ollama-KI
-
-Mögliche Funktionen:
-
-- Webseiten zusammenfassen
-- PDFs zusammenfassen
-- Notizen analysieren
-- Quellen vergleichen
-- Widersprüche erkennen
-- Personen, Unternehmen und Orte erkennen
-- Timeline-Vorschläge erzeugen
-- Fragen zu gespeicherten Quellen beantworten
-- weitere Recherchefragen vorschlagen
-
-### Phase 11: Feinschliff und Veröffentlichung
-
-- Design und Bedienbarkeit
-- Performance
-- Barrierefreiheit
-- Fehlerseiten
-- Tests
-- macOS-App-Paket
-- Signierung
-- Update-System
+- Workspace erstellen, umbenennen, öffnen und löschen
+- mehrere Tabs öffnen und zwischen ihnen wechseln
+- App vollständig beenden und Tabs nach dem Neustart prüfen
+- Quelle speichern, öffnen und löschen
+- doppelte Quelle im selben Workspace speichern
+- Notiz erstellen, bearbeiten und löschen
+- Notiz mit einer Quelle verknüpfen und die Quelle öffnen
+- Notiz direkt aus einer Quellenkarte erstellen
+- Tags erstellen, bearbeiten und vollständig entfernen
+- doppelte Tags mit unterschiedlicher Groß- und Kleinschreibung testen
+- Daten in mindestens zwei Workspaces auf korrekte Trennung prüfen
 
 ## Versionsverwaltung
 
-Das Projekt verwendet Git und GitHub.
-
-Wichtige Entwicklungsstände werden mit eindeutigen Versionsnummern gesichert:
+Das Projekt verwendet semantische Versionsnummern im Format:
 
 ```text
-v0.1.0  Erstes funktionierendes Electron-Fenster
-v0.2.0  Browser-Oberfläche und Startseite
-v0.3.0  Erste echte Browser-Navigation
-v0.3.1  Ladeanimation für Webseiten
-v0.4.0  Echte Browser-Tabs
-v0.4.1  Tab-Verhalten und Mac-Tastenkürzel
-v0.5.0  Workspace-Auswahl und lokale Speicherung
-v0.5.1  Workspace-Wechsel und Tab-Erstellung repariert
-v0.6.0  Tabs getrennt pro Workspace speichern
-v0.6.1  Browsersitzungen pro Workspace trennen
-v0.7.0  Workspace-Verwaltung mit Umbenennen und Löschen erweitern
-v0.7.1  Workspace-Übersicht mit Tabanzahl, Hervorhebung und reparierten Symbolen verbessern
-v0.8.0  Quellenansicht und zuverlässige Wiederherstellung der Workspace-Tabs
-v0.9.0  Dauerhafte und nach Workspaces getrennte Quellenverwaltung
+MAJOR.MINOR.PATCH
 ```
 
-Die vollständige Versionshistorie wird ab jetzt in `CHANGELOG.md` gepflegt.
+Beispiele:
 
-### Entwicklungsstände mit `-dev`
+- `0.10.1`: Notizen mit Quellen verknüpft
+- `0.10.2`: Tags für Notizen hinzugefügt
 
-Die Kennzeichnung `-dev` steht für „Development“ und markiert einen noch nicht abgeschlossenen Entwicklungsstand.
+Vor jedem Commit gilt:
 
-Ein Commit mit einer Bezeichnung wie:
+1. Änderungen vollständig testen.
+2. `CHANGELOG.md` aktualisieren.
+3. Versionsangaben bei Bedarf in `package.json` und `package-lock.json` aktualisieren.
+4. Änderungen über die Quellcodeverwaltung in Visual Studio Code committen.
 
-`0.9.0-dev - Quellenverwaltung implementiert, Workspace-Klickfehler noch offen`
+Commit-Nachrichten verwenden dieses Format:
 
-gehört bereits zur Entwicklung der späteren Version `0.9.0`, ist aber noch keine fertige oder veröffentlichungsbereite Version. Ein solcher Zwischenstand kann neue Funktionen enthalten, gleichzeitig aber noch bekannte Fehler oder unvollständige Arbeiten besitzen.
+```text
+0.0.0 - Kurze Beschreibung der Änderung
+```
 
-Dabei gilt:
+## Nächste geplante Schritte
 
-- `0.9.0-dev` ist ein gesicherter Entwicklungsstand.
-- `0.9.0` ist die fertig getestete Version.
-- Die Versionsnummer in `package.json` wird erst beim Abschluss auf die endgültige Version gesetzt.
-- Entwicklungs-Commits mit `-dev` dienen dazu, funktionierende Zwischenstände vor weiteren Änderungen sicher zu speichern.
-- Ein `-dev`-Stand ist nicht für die normale Veröffentlichung oder Weitergabe vorgesehen.
+- Tags für gespeicherte Quellen
+- Quellen und Notizen nach Tags filtern
+- Quellen und Notizen durchsuchen
+- Prüfstatus und Bewertung für Quellen
+- verbesserte Sortiermöglichkeiten
+- Datenexport und Datensicherung
+- weitere Rechercheansichten wie Timeline oder Research Board
 
-Die Kennzeichnung `-dev` in einer Commit-Nachricht ist nicht zwingend eine eigene veröffentlichte Version. Sie beschreibt den Entwicklungszustand des Projekts zum Zeitpunkt des Commits.
+## Aktuelle Grenzen
 
-## Entwicklungsprinzipien
-
-- Nach jeder Phase bleibt die App startfähig.
-- Große Funktionen werden in kleine, testbare Schritte aufgeteilt.
-- Vor riskanten Änderungen wird ein Git-Commit erstellt.
-- Workspace-Daten werden strikt getrennt.
-- Die Benutzeroberfläche erhält keinen direkten, unkontrollierten Node.js-Zugriff.
-- Persönliche Daten werden nicht in Git gespeichert.
-- Zukünftige Cloud- und KI-Funktionen werden über eigene Services angebunden.
-- Der Code soll ausführlich und für Menschen ohne Programmiererfahrung erklärt werden.
-- Erklärende Kommentare sollen in Visual Studio Code ein- und ausgeblendet werden können, ohne eine zweite Codeversion zu pflegen.
-
-## Bekannte Einschränkungen
-
-- Die Anwendung befindet sich in einer frühen Entwicklungsphase.
-- Manche Webseiten können zusätzliche Sicherheitsabfragen anzeigen.
-- Google kann gelegentlich eine Roboterprüfung verlangen.
-- Einzelne Chromium-Netzwerkwarnungen können im Terminal erscheinen, obwohl die Hauptseite korrekt lädt.
-- Der Zustand innerhalb einer Webseite, beispielsweise Scrollpositionen oder nicht abgesendete Formulare, wird noch nicht wiederhergestellt.
-- Die Speicherstruktur verwendet derzeit teilweise JSON und Browser-Local-Storage statt der später vorgesehenen SQLite-Datenbank.
-
-## Mitwirkung
-
-Das Projekt wird derzeit schrittweise entwickelt und ist noch nicht für externe Beiträge vorbereitet. Vor einer öffentlichen Zusammenarbeit werden Entwicklungsrichtlinien, Tests und ein Issue-System ergänzt.
+- keine Cloud-Synchronisierung
+- keine Zusammenarbeit mit mehreren Personen
+- keine automatische Quellenbewertung
+- keine vollständige Volltextsuche
+- keine Tags für Quellen
+- kein Datenexport
+- keine Installationspakete für die Veröffentlichung
 
 ## Lizenz
 
-Die endgültige Lizenz des Projekts wurde noch nicht festgelegt. Bis zur Entscheidung sollte der Code nicht ohne Erlaubnis weiterveröffentlicht oder als eigenes Produkt angeboten werden.
+Das Projekt verwendet laut `package.json` derzeit die Lizenz `ISC`.
 
 ## Autor
 
-**Felix Michel**
+Felix Michel
