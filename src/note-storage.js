@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { normalizeTags } = require("./tag-utils");
 
 let storageFilePath = null;
 
@@ -112,9 +113,16 @@ function loadNotes(workspaceId) {
   const workspaceNotes =
     storage.workspaces[String(workspaceId)];
 
-  return Array.isArray(workspaceNotes)
-    ? workspaceNotes
-    : [];
+  if (!Array.isArray(workspaceNotes)) {
+    return [];
+  }
+
+  return workspaceNotes.map((note) => {
+    return {
+      ...note,
+      tags: normalizeTags(note.tags)
+    };
+  });
 }
 
 function createNote(
@@ -140,6 +148,8 @@ function createNote(
     String(noteData.sourceId).trim() === ""
       ? null
       : String(noteData.sourceId).trim();
+
+  const tags = normalizeTags(noteData?.tags);
 
   if (title === "" && content === "") {
     return {
@@ -181,6 +191,8 @@ function createNote(
 
     content,
     sourceId,
+    tags,
+
 
     createdAt: timestamp,
     updatedAt: timestamp
@@ -224,6 +236,8 @@ function updateNote(
       ? null
       : String(noteData.sourceId).trim();
 
+  const tags = normalizeTags(noteData?.tags);
+
   if (title === "" && content === "") {
     return {
       success: false,
@@ -266,6 +280,7 @@ function updateNote(
   note.content = content;
   note.sourceId = sourceId;
   note.updatedAt = new Date().toISOString();
+  note.tags = tags;
 
   writeStorage(storage);
 

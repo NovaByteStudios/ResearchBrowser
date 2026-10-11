@@ -890,6 +890,28 @@ input {
   -webkit-line-clamp: 5;
 }
 .note-updated-date { margin-top: auto; color: #747c8c; font-size: 11px; }
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.note-tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 4px 10px;
+  border: 1px solid rgba(91, 140, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(91, 140, 255, 0.14);
+  color: #b9ccff;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
 .note-card-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
 .note-action-button {
   height: 34px;

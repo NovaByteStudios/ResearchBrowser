@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { normalizeTags } = require("./tag-utils");
 
 let storageFilePath = null;
 
@@ -126,17 +127,18 @@ function saveSource(workspaceId, source) {
     };
   }
 
-  const savedSource = {
-    id:
-      "source-" +
-      Date.now() +
-      "-" +
-      Math.random().toString(36).slice(2, 8),
-    title: source.title || "Unbenannte Quelle",
-    url: String(source.url),
-    domain: source.domain || "",
-    savedAt: new Date().toISOString()
-  };
+const savedSource = {
+  id:
+    "source-" +
+    Date.now() +
+    "-" +
+    Math.random().toString(36).slice(2, 8),
+  title: source.title || "Unbenannte Quelle",
+  url: String(source.url),
+  domain: source.domain || "",
+  tags: normalizeTags(source.tags),
+  savedAt: new Date().toISOString()
+};
 
   workspaceSources.unshift(savedSource);
 
@@ -157,9 +159,16 @@ function loadSources(workspaceId) {
   const workspaceSources =
     storage.workspaces[String(workspaceId)];
 
-  return Array.isArray(workspaceSources)
-    ? workspaceSources
-    : [];
+  if (!Array.isArray(workspaceSources)) {
+    return [];
+  }
+
+  return workspaceSources.map((source) => {
+    return {
+      ...source,
+      tags: normalizeTags(source.tags)
+    };
+  });
 }
 
 function deleteSource(workspaceId, sourceId) {

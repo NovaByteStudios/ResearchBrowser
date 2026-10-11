@@ -67,6 +67,7 @@ const noteForm = document.querySelector("#note-form");
 const noteIdInput = document.querySelector("#note-id");
 const noteTitleInput = document.querySelector("#note-title");
 const noteSourceSelect = document.querySelector("#note-source");
+const noteTagsInput = document.querySelector("#note-tags");
 const noteContentInput = document.querySelector("#note-content");
 const noteFormError = document.querySelector("#note-form-error");
 const newNoteButton = document.querySelector("#new-note-button");
@@ -478,6 +479,9 @@ async function openNoteEditor(note = null, preferredSourceId = "") {
     noteEditorHeading.textContent = "Notiz bearbeiten";
     noteIdInput.value = note.id;
     noteTitleInput.value = note.title || "";
+    noteTagsInput.value = Array.isArray(note.tags)
+      ? note.tags.join(", ")
+      : "";
     noteContentInput.value = note.content || "";
   } else {
     noteEditorHeading.textContent = "Neue Notiz";
@@ -515,6 +519,27 @@ function createNoteCard(note) {
   const preview = document.createElement("p");
   preview.className = "note-preview";
   preview.textContent = note.content || "";
+  const tagsContainer = document.createElement("div");
+tagsContainer.className = "note-tags";
+
+const noteTags = Array.isArray(note.tags)
+  ? note.tags
+  : [];
+
+for (const tag of noteTags) {
+  const tagElement =
+    document.createElement("span");
+
+  tagElement.className = "note-tag";
+  tagElement.textContent = tag;
+
+  tagsContainer.appendChild(tagElement);
+}
+
+tagsContainer.classList.toggle(
+  "hidden",
+  noteTags.length === 0
+);
 
   const linkedSource = note.sourceId
     ? availableNoteSources.find((source) => String(source.id) === String(note.sourceId))
@@ -551,7 +576,12 @@ function createNoteCard(note) {
   const date = document.createElement("span");
   date.className = "note-updated-date";
   date.textContent = "Bearbeitet am " + formatNoteDate(note.updatedAt || note.createdAt);
-  info.append(title, preview, date);
+  info.append(
+    title,
+    preview,
+    tagsContainer,
+    date
+  );
   const actions = document.createElement("div");
   actions.className = "note-card-actions";
   const edit = document.createElement("button");
@@ -602,6 +632,10 @@ async function saveNote(event) {
   const title = noteTitleInput.value.trim();
   const content = noteContentInput.value.trim();
   const sourceId = noteSourceSelect.value || null;
+  const tags = noteTagsInput.value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== "");
   if (!title || !content) {
     noteFormError.textContent = "Bitte gib einen Titel und einen Inhalt ein.";
     noteFormError.classList.remove("hidden");
@@ -616,8 +650,8 @@ async function saveNote(event) {
       typeof window.browserAPI.updateNote === "function"
     ) {
       const result = id
-        ? await window.browserAPI.updateNote(id, { title, content, sourceId })
-        : await window.browserAPI.createNote({ title, content, sourceId });
+        ? await window.browserAPI.updateNote(id, { title, content, sourceId, tags })
+        : await window.browserAPI.createNote({ title, content, sourceId, tags });
 
       if (!result || result.success === false) {
         throw new Error(
@@ -630,13 +664,14 @@ async function saveNote(event) {
       const notes = await loadNotes();
       const index = notes.findIndex((note) => note.id === id);
       if (index >= 0) {
-        notes[index] = { ...notes[index], title, content, sourceId, updatedAt: now };
+        notes[index] = { ...notes[index], title, content, sourceId, tags, updatedAt: now };
       } else {
         notes.push({
           id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
           title,
           content,
           sourceId,
+          tags,
           createdAt: now,
           updatedAt: now
         });

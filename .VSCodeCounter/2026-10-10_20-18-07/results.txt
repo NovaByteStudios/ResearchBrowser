@@ -1,0 +1,54 @@
+Date : 2026-10-10 20:18:07
+Directory : /Users/felix/Documents/ResearchBrowser
+Total : 21 files,  5401 codes, 18 comments, 1027 blanks, all 6446 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |          8 |      3,193 |          0 |        648 |      3,841 |
+| PostCSS    |          2 |      1,266 |         13 |        189 |      1,468 |
+| Markdown   |          2 |        452 |          0 |        154 |        606 |
+| HTML       |          2 |        266 |          5 |         29 |        300 |
+| JSON       |          2 |        198 |          0 |          2 |        200 |
+| XML        |          5 |         26 |          0 |          5 |         31 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                  | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                     |         21 |      5,401 |         18 |      1,027 |      6,446 |
+| . (Files)                                                             |          4 |        650 |          0 |        156 |        806 |
+| assets                                                                |          5 |         26 |          0 |          5 |         31 |
+| assets/icons                                                          |          5 |         26 |          0 |          5 |         31 |
+| src                                                                   |         12 |      4,725 |         18 |        866 |      5,609 |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                              | language   | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/felix/Documents/ResearchBrowser/CHANGELOG.md                   | Markdown   |        136 |          0 |         43 |        179 |
+| /Users/felix/Documents/ResearchBrowser/README.md                      | Markdown   |        316 |          0 |        111 |        427 |
+| /Users/felix/Documents/ResearchBrowser/assets/icons/delete.svg        | XML        |          6 |          0 |          1 |          7 |
+| /Users/felix/Documents/ResearchBrowser/assets/icons/more.svg          | XML        |          5 |          0 |          1 |          6 |
+| /Users/felix/Documents/ResearchBrowser/assets/icons/rename.svg        | XML        |          4 |          0 |          1 |          5 |
+| /Users/felix/Documents/ResearchBrowser/assets/icons/workspace-add.svg | XML        |          5 |          0 |          1 |          6 |
+| /Users/felix/Documents/ResearchBrowser/assets/icons/workspace.svg     | XML        |          6 |          0 |          1 |          7 |
+| /Users/felix/Documents/ResearchBrowser/package-lock.json              | JSON       |        175 |          0 |          1 |        176 |
+| /Users/felix/Documents/ResearchBrowser/package.json                   | JSON       |         23 |          0 |          1 |         24 |
+| /Users/felix/Documents/ResearchBrowser/src/index.html                 | HTML       |        194 |          5 |         22 |        221 |
+| /Users/felix/Documents/ResearchBrowser/src/main.js                    | JavaScript |      1,121 |          0 |        222 |      1,343 |
+| /Users/felix/Documents/ResearchBrowser/src/note-storage.js            | JavaScript |        300 |          0 |         71 |        371 |
+| /Users/felix/Documents/ResearchBrowser/src/preload.js                 | JavaScript |        140 |          0 |         27 |        167 |
+| /Users/felix/Documents/ResearchBrowser/src/renderer.js                | JavaScript |        877 |          0 |        163 |      1,040 |
+| /Users/felix/Documents/ResearchBrowser/src/source-storage.js          | JavaScript |        198 |          0 |         47 |        245 |
+| /Users/felix/Documents/ResearchBrowser/src/styles.css                 | PostCSS    |        903 |         12 |        133 |      1,048 |
+| /Users/felix/Documents/ResearchBrowser/src/tag-utils.js               | JavaScript |         26 |          0 |          8 |         34 |
+| /Users/felix/Documents/ResearchBrowser/src/workspace-storage.js       | JavaScript |        119 |          0 |         13 |        132 |
+| /Users/felix/Documents/ResearchBrowser/src/workspace.css              | PostCSS    |        363 |          1 |         56 |        420 |
+| /Users/felix/Documents/ResearchBrowser/src/workspace.html             | HTML       |         72 |          0 |          7 |         79 |
+| /Users/felix/Documents/ResearchBrowser/src/workspace.js               | JavaScript |        412 |          0 |         97 |        509 |
+| Total                                                                 |            |      5,401 |         18 |      1,027 |      6,446 |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+

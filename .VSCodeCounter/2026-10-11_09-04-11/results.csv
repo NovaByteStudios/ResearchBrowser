@@ -1,0 +1,14 @@
+"filename", "language", "JavaScript", "HTML", "PostCSS", "comment", "blank", "total"
+"/Users/felix/Documents/ResearchBrowser/src/index.html", "HTML", 0, 194, 0, 5, 22, 221
+"/Users/felix/Documents/ResearchBrowser/src/main.js", "JavaScript", 1121, 0, 0, 0, 222, 1343
+"/Users/felix/Documents/ResearchBrowser/src/note-storage.js", "JavaScript", 300, 0, 0, 0, 71, 371
+"/Users/felix/Documents/ResearchBrowser/src/preload.js", "JavaScript", 140, 0, 0, 0, 27, 167
+"/Users/felix/Documents/ResearchBrowser/src/renderer.js", "JavaScript", 877, 0, 0, 0, 163, 1040
+"/Users/felix/Documents/ResearchBrowser/src/source-storage.js", "JavaScript", 198, 0, 0, 0, 47, 245
+"/Users/felix/Documents/ResearchBrowser/src/styles.css", "PostCSS", 0, 0, 903, 12, 133, 1048
+"/Users/felix/Documents/ResearchBrowser/src/tag-utils.js", "JavaScript", 26, 0, 0, 0, 8, 34
+"/Users/felix/Documents/ResearchBrowser/src/workspace-storage.js", "JavaScript", 119, 0, 0, 0, 13, 132
+"/Users/felix/Documents/ResearchBrowser/src/workspace.css", "PostCSS", 0, 0, 363, 1, 56, 420
+"/Users/felix/Documents/ResearchBrowser/src/workspace.html", "HTML", 0, 72, 0, 0, 7, 79
+"/Users/felix/Documents/ResearchBrowser/src/workspace.js", "JavaScript", 412, 0, 0, 0, 97, 509
+"Total", "-", 3193, 266, 1266, 18, 866, 5609

@@ -196,6 +196,12 @@
                   Optional: Ordne die Notiz einer gespeicherten Quelle dieses Workspaces zu.
                 </p>
 
+                <label for="note-tags">Tags</label>
+                <input id="note-tags" name="tags" type="text" maxlength="300" placeholder="Zum Beispiel: Schule, Geschichte, wichtig" autocomplete="off" spellcheck="false" aria-describedby="note-tags-help">
+                <p id="note-tags-help" class="note-field-help">
+                  Optional: Trenne mehrere Tags mit Kommas.
+                </p>
+
                 <label for="note-content">Inhalt</label>
                 <textarea id="note-content" name="content" rows="12" placeholder="Schreibe hier deine Notiz ..." required></textarea>
                 <p id="note-form-error" class="note-form-error hidden" role="alert"></p>

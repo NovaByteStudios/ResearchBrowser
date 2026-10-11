@@ -10,6 +10,21 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Notizen und Tags für gespeicherte Quellen ergänzen.
 - Prüfstatus für Quellen hinzufügen.
 - Quellen durchsuchen und filtern.
+## [0.10.2] - 2026-10-11
+
+### Hinzugefügt
+
+- Tags für Notizen hinzugefügt.
+- Eingabefeld für kommagetrennte Tags im Notizeditor ergänzt.
+- Tag-Chips auf Notizkarten hinzugefügt.
+
+### Verbessert
+
+- Tags werden beim Erstellen und Bearbeiten von Notizen gespeichert.
+- Bestehende Notizen ohne Tags bleiben kompatibel.
+- Doppelte Tags werden unabhängig von Groß- und Kleinschreibung entfernt.
+- Leere Tags und überflüssige Leerzeichen werden automatisch bereinigt.
+
 ## 0.10.1 – 05.10.2026
 
 ### Hinzugefügt

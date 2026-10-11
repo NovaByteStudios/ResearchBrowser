@@ -1,0 +1,11 @@
+"filename", "language", "JSON", "Markdown", "XML", "comment", "blank", "total"
+"/Users/felix/Documents/ResearchBrowser/CHANGELOG.md", "Markdown", 0, -136, 0, 0, -43, -179
+"/Users/felix/Documents/ResearchBrowser/README.md", "Markdown", 0, -316, 0, 0, -111, -427
+"/Users/felix/Documents/ResearchBrowser/assets/icons/delete.svg", "XML", 0, 0, -6, 0, -1, -7
+"/Users/felix/Documents/ResearchBrowser/assets/icons/more.svg", "XML", 0, 0, -5, 0, -1, -6
+"/Users/felix/Documents/ResearchBrowser/assets/icons/rename.svg", "XML", 0, 0, -4, 0, -1, -5
+"/Users/felix/Documents/ResearchBrowser/assets/icons/workspace-add.svg", "XML", 0, 0, -5, 0, -1, -6
+"/Users/felix/Documents/ResearchBrowser/assets/icons/workspace.svg", "XML", 0, 0, -6, 0, -1, -7
+"/Users/felix/Documents/ResearchBrowser/package-lock.json", "JSON", -175, 0, 0, 0, -1, -176
+"/Users/felix/Documents/ResearchBrowser/package.json", "JSON", -23, 0, 0, 0, -1, -24
+"Total", "-", -198, -452, -26, 0, -161, -837
