@@ -10,6 +10,29 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Notizen und Tags für gespeicherte Quellen ergänzen.
 - Prüfstatus für Quellen hinzufügen.
 - Quellen durchsuchen und filtern.
+
+## [0.10.3] - 2026-10-13
+
+### Hinzugefügt
+
+- Tags für gespeicherte Quellen hinzugefügt.
+- Tag-Chips auf Quellenkarten hinzugefügt.
+- Eigenen Editor zum Bearbeiten der Quellen-Tags ergänzt.
+
+### Verbessert
+
+- Quellen-Tags können nachträglich geändert oder vollständig entfernt werden.
+- Doppelte Quellen-Tags werden unabhängig von Groß- und Kleinschreibung entfernt.
+- Leere Tags und überflüssige Leerzeichen werden automatisch bereinigt.
+- Mehrteilige Tags behalten ihre Leerzeichen.
+- Bestehende Quellen ohne Tags bleiben kompatibel.
+- Quellen-Tags bleiben nach einem vollständigen Neustart erhalten.
+- Tag-Editor kann über Abbrechen, Schließen, Escape oder einen Klick auf den Hintergrund verlassen werden.
+
+### Behoben
+
+- Nicht funktionierenden Systemdialog zum Bearbeiten von Quellen-Tags durch einen eigenen Tag-Editor ersetzt.
+
 ## [0.10.2] - 2026-10-11
 
 ### Hinzugefügt

@@ -31,6 +31,17 @@ loadSources: () => {
   );
 },
 
+updateSourceTags: (
+  sourceId,
+  tags
+) => {
+  return ipcRenderer.invoke(
+    "sources:update-tags",
+    sourceId,
+    tags
+  );
+},
+
 deleteSource: (sourceId) => {
   return ipcRenderer.invoke(
     "sources:delete",

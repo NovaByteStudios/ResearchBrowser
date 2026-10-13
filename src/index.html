@@ -213,6 +213,31 @@
             </div>
           </div>
         </section>
+        <div id="source-tag-editor" class="source-tag-editor hidden" role="dialog" aria-modal="true" aria-labelledby="source-tag-editor-heading">
+          <div class="source-tag-editor-panel">
+            <header class="source-tag-editor-header">
+              <div>
+                <span class="page-eyebrow">Quellen-Tags</span>
+                <h2 id="source-tag-editor-heading">Tags bearbeiten</h2>
+                <p id="source-tag-source-title" class="source-tag-source-title"></p>
+              </div>
+              <button id="close-source-tag-editor-button" class="icon-button" type="button" aria-label="Tag-Editor schließen" title="Schließen">×</button>
+            </header>
+            <form id="source-tag-form" class="source-tag-form">
+              <input id="source-tag-source-id" type="hidden">
+              <label for="source-tags-input">Tags</label>
+              <input id="source-tags-input" name="tags" type="text" maxlength="300" placeholder="Zum Beispiel: Wikipedia, Geschichte, wichtig" autocomplete="off" spellcheck="false" aria-describedby="source-tags-help">
+              <p id="source-tags-help" class="source-tag-field-help">
+                Optional: Trenne mehrere Tags mit Kommas. Ein leeres Feld entfernt alle Tags.
+              </p>
+              <p id="source-tag-form-error" class="source-tag-form-error hidden" role="alert"></p>
+              <div class="source-tag-form-actions">
+                <button id="cancel-source-tags-button" class="secondary-button" type="button">Abbrechen</button>
+                <button id="save-source-tags-button" class="primary-button" type="submit">Tags speichern</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
   </div>

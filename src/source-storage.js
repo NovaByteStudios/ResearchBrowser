@@ -171,6 +171,60 @@ function loadSources(workspaceId) {
   });
 }
 
+function updateSourceTags(
+  workspaceId,
+  sourceId,
+  tags
+) {
+  if (!workspaceId || !sourceId) {
+    return {
+      success: false,
+      error:
+        "Workspace oder Quelle wurde nicht gefunden."
+    };
+  }
+
+  const storage = readStorage();
+  const normalizedWorkspaceId =
+    String(workspaceId);
+
+  const workspaceSources =
+    storage.workspaces[
+      normalizedWorkspaceId
+    ];
+
+  if (!Array.isArray(workspaceSources)) {
+    return {
+      success: false,
+      error:
+        "Für diesen Workspace wurden keine Quellen gefunden."
+    };
+  }
+
+  const source = workspaceSources.find(
+    (savedSource) =>
+      String(savedSource.id) ===
+      String(sourceId)
+  );
+
+  if (!source) {
+    return {
+      success: false,
+      error:
+        "Die Quelle wurde nicht gefunden."
+    };
+  }
+
+  source.tags = normalizeTags(tags);
+
+  writeStorage(storage);
+
+  return {
+    success: true,
+    source
+  };
+}
+
 function deleteSource(workspaceId, sourceId) {
   if (!workspaceId || !sourceId) {
     return {
@@ -240,6 +294,7 @@ module.exports = {
   initializeSourceStorage,
   saveSource,
   loadSources,
+  updateSourceTags,
   deleteSource,
   deleteWorkspaceSources
 };

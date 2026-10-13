@@ -21,6 +21,7 @@ const {
   initializeSourceStorage,
   saveSource,
   loadSources,
+  updateSourceTags,
   deleteSource,
   deleteWorkspaceSources
 } = require("./source-storage");
@@ -810,6 +811,33 @@ ipcMain.handle(
 
     return loadSources(
       activeWorkspace.id
+    );
+  }
+);
+
+ipcMain.handle(
+  "sources:update-tags",
+  (_event, sourceId, tags) => {
+    if (!activeWorkspace) {
+      return {
+        success: false,
+        error:
+          "Es ist kein Workspace geöffnet."
+      };
+    }
+
+    if (!sourceId) {
+      return {
+        success: false,
+        error:
+          "Es wurde keine Quelle ausgewählt."
+      };
+    }
+
+    return updateSourceTags(
+      activeWorkspace.id,
+      String(sourceId),
+      Array.isArray(tags) ? tags : []
     );
   }
 );

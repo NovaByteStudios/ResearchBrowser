@@ -767,6 +767,12 @@ input {
   border-color: var(--accent);
 }
 
+.source-tags-button:hover {
+  color: #ffffff;
+  background: rgba(91, 140, 255, 0.2);
+  border-color: rgba(91, 140, 255, 0.65);
+}
+
 .source-delete-button {
   color: #ff9a93;
 }
@@ -895,6 +901,29 @@ input {
   flex-wrap: wrap;
   gap: 7px;
   margin-top: 12px;
+}
+
+.source-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.source-tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 4px 10px;
+  border: 1px solid rgba(91, 140, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(91, 140, 255, 0.14);
+  color: #b9ccff;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .note-tag {
@@ -1064,6 +1093,150 @@ input {
   }
 
   .note-source-open-button {
+    width: 100%;
+  }
+}
+
+/* Editor für Quellen-Tags */
+
+.source-tag-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 7, 11, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.source-tag-editor-panel {
+  width: min(560px, 100%);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+.source-tag-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.source-tag-editor-header h2 {
+  margin: 4px 0 0;
+  font-size: 23px;
+}
+
+.source-tag-source-title {
+  max-width: 430px;
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-tag-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px 24px;
+}
+
+.source-tag-form label {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.source-tag-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 13px;
+  color: var(--text);
+  background: #0d1016;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+
+.source-tag-form input::placeholder {
+  color: #747c8c;
+}
+
+.source-tag-form input:hover {
+  border-color: #3b4352;
+}
+
+.source-tag-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.source-tag-field-help {
+  margin: -2px 0 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.source-tag-form-error {
+  margin: 2px 0;
+  padding: 10px 12px;
+  color: #ffaaa5;
+  font-size: 12px;
+  line-height: 1.5;
+  background: rgba(255, 95, 87, 0.12);
+  border: 1px solid rgba(255, 95, 87, 0.3);
+  border-radius: 9px;
+}
+
+.source-tag-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.source-tag-form-actions button {
+  min-width: 120px;
+}
+
+#save-source-tags-button:disabled {
+  color: rgba(255, 255, 255, 0.72);
+  background: #3f5f9f;
+  border-color: #3f5f9f;
+  cursor: wait;
+  opacity: 0.8;
+}
+
+@media (max-width: 620px) {
+  .source-tag-editor {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .source-tag-editor-panel {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .source-tag-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .source-tag-form-actions button {
     width: 100%;
   }
 }

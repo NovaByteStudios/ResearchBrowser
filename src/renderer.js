@@ -57,6 +57,52 @@ const sourcesList =
   document.querySelector(
     "#sources-list"
   );
+
+const sourceTagEditor =
+  document.querySelector(
+    "#source-tag-editor"
+  );
+
+const sourceTagForm =
+  document.querySelector(
+    "#source-tag-form"
+  );
+
+const sourceTagSourceId =
+  document.querySelector(
+    "#source-tag-source-id"
+  );
+
+const sourceTagSourceTitle =
+  document.querySelector(
+    "#source-tag-source-title"
+  );
+
+const sourceTagsInput =
+  document.querySelector(
+    "#source-tags-input"
+  );
+
+const sourceTagFormError =
+  document.querySelector(
+    "#source-tag-form-error"
+  );
+
+const closeSourceTagEditorButton =
+  document.querySelector(
+    "#close-source-tag-editor-button"
+  );
+
+const cancelSourceTagsButton =
+  document.querySelector(
+    "#cancel-source-tags-button"
+  );
+
+const saveSourceTagsButton =
+  document.querySelector(
+    "#save-source-tags-button"
+  );
+
 const showNotesButton = document.querySelector("#show-notes-button");
 const notesPage = document.querySelector("#notes-page");
 const notesEmptyState = document.querySelector("#notes-empty-state");
@@ -77,6 +123,7 @@ const cancelNoteButton = document.querySelector("#cancel-note-button");
 const returnToBrowserFromNotesButton = document.querySelector("#return-to-browser-from-notes-button");
 
 let activeTabId = null;
+let editingSourceForTags = null;
 let availableNoteSources = [];
 const activeWorkspaceName =
   document.querySelector(".workspace-name strong");
@@ -190,6 +237,109 @@ async function removeSavedSource(source) {
     );
   }
 }
+
+function closeSourceTagEditor() {
+  sourceTagEditor.classList.add("hidden");
+
+  sourceTagForm.reset();
+  sourceTagSourceId.value = "";
+  sourceTagSourceTitle.textContent = "";
+  sourceTagFormError.textContent = "";
+  sourceTagFormError.classList.add("hidden");
+
+  editingSourceForTags = null;
+  saveSourceTagsButton.disabled = false;
+  saveSourceTagsButton.textContent =
+    "Tags speichern";
+}
+
+function editSourceTags(source) {
+  editingSourceForTags = source;
+
+  const currentTags =
+    Array.isArray(source.tags)
+      ? source.tags
+      : [];
+
+  sourceTagSourceId.value =
+    source.id || "";
+
+  sourceTagSourceTitle.textContent =
+    source.title || "Unbenannte Quelle";
+
+  sourceTagsInput.value =
+    currentTags.join(", ");
+
+  sourceTagFormError.textContent = "";
+  sourceTagFormError.classList.add("hidden");
+
+  sourceTagEditor.classList.remove("hidden");
+
+  sourceTagsInput.focus();
+  sourceTagsInput.select();
+}
+
+async function saveSourceTags(event) {
+  event.preventDefault();
+
+  if (!editingSourceForTags) {
+    sourceTagFormError.textContent =
+      "Es wurde keine Quelle ausgewählt.";
+
+    sourceTagFormError.classList.remove(
+      "hidden"
+    );
+
+    return;
+  }
+
+  const tags = sourceTagsInput.value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== "");
+
+  saveSourceTagsButton.disabled = true;
+  saveSourceTagsButton.textContent =
+    "Wird gespeichert...";
+
+  sourceTagFormError.textContent = "";
+  sourceTagFormError.classList.add("hidden");
+
+  try {
+    const result =
+      await window.browserAPI.updateSourceTags(
+        editingSourceForTags.id,
+        tags
+      );
+
+    if (!result || result.success === false) {
+      throw new Error(
+        result?.error ||
+          "Die Tags konnten nicht gespeichert werden."
+      );
+    }
+
+    closeSourceTagEditor();
+    await renderSources();
+  } catch (error) {
+    console.error(
+      "Quellen-Tags konnten nicht gespeichert werden:",
+      error
+    );
+
+    sourceTagFormError.textContent =
+      error?.message ||
+      "Die Tags konnten nicht gespeichert werden.";
+
+    sourceTagFormError.classList.remove(
+      "hidden"
+    );
+
+    saveSourceTagsButton.disabled = false;
+    saveSourceTagsButton.textContent =
+      "Tags speichern";
+  }
+}
 function createSourceCard(source) {
   const sourceCard =
     document.createElement("article");
@@ -223,6 +373,30 @@ function createSourceCard(source) {
   url.textContent = source.url || "";
   url.title = source.url || "";
 
+  const tagsContainer =
+  document.createElement("div");
+
+tagsContainer.className = "source-tags";
+
+const sourceTags = Array.isArray(source.tags)
+  ? source.tags
+  : [];
+
+for (const tag of sourceTags) {
+  const tagElement =
+    document.createElement("span");
+
+  tagElement.className = "source-tag";
+  tagElement.textContent = tag;
+
+  tagsContainer.appendChild(tagElement);
+}
+
+tagsContainer.classList.toggle(
+  "hidden",
+  sourceTags.length === 0
+);
+
   const savedDate =
     document.createElement("span");
 
@@ -235,6 +409,7 @@ function createSourceCard(source) {
     domain,
     title,
     url,
+    tagsContainer,
     savedDate
   );
 
@@ -276,6 +451,23 @@ function createSourceCard(source) {
     }
   );
 
+  const editTagsButton =
+  document.createElement("button");
+
+editTagsButton.className =
+  "source-action-button source-tags-button";
+
+editTagsButton.type = "button";
+editTagsButton.textContent =
+  "Tags bearbeiten";
+
+editTagsButton.addEventListener(
+  "click",
+  () => {
+    editSourceTags(source);
+  }
+);
+
   const deleteButton =
     document.createElement("button");
 
@@ -295,6 +487,7 @@ function createSourceCard(source) {
   actions.append(
     openButton,
     createNoteButton,
+    editTagsButton,
     deleteButton
   );
 
@@ -938,11 +1131,45 @@ closeNoteEditorButton.addEventListener("click", closeNoteEditor);
 cancelNoteButton.addEventListener("click", closeNoteEditor);
 returnToBrowserFromNotesButton.addEventListener("click", showBrowserPage);
 noteForm.addEventListener("submit", saveNote);
+sourceTagForm.addEventListener(
+  "submit",
+  saveSourceTags
+);
+
+closeSourceTagEditorButton.addEventListener(
+  "click",
+  closeSourceTagEditor
+);
+
+cancelSourceTagsButton.addEventListener(
+  "click",
+  closeSourceTagEditor
+);
+
+sourceTagEditor.addEventListener(
+  "click",
+  (event) => {
+    if (event.target === sourceTagEditor) {
+      closeSourceTagEditor();
+    }
+  }
+);
 noteEditor.addEventListener("click", (event) => {
   if (event.target === noteEditor) closeNoteEditor();
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !noteEditor.classList.contains("hidden")) closeNoteEditor();
+  if (event.key === "Escape") {
+    if (
+      !sourceTagEditor.classList.contains(
+        "hidden"
+      )
+    ) {
+      closeSourceTagEditor();
+      return;
+    }
+
+  closeNoteEditor();
+}
 });
 
 showSourcesButton.addEventListener(
