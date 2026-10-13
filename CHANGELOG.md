@@ -16,6 +16,14 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Timeline und Research Board schrittweise umsetzen.
 - Spätere optionale KI-Unterstützung für Quellen- und Dokumentanalyse vorbereiten.
 
+## [0.10.3 Beta] - 2026-10-13
+
+### Hinzugefügt
+- Electron Forge für die Verpackung und Verteilung der Anwendung eingerichtet.
+- Ausführbare macOS-App erfolgreich erzeugt und außerhalb der Entwicklungsumgebung getestet.
+- ZIP- und DMG-Pakete für die öffentliche macOS-Testversion konfiguriert.
+- Installation und Start der Anwendung aus dem Programme-Ordner erfolgreich getestet.
+
 ## [0.10.3] - 2026-10-13
 
 ### Hinzugefügt
