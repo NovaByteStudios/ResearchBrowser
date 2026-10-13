@@ -293,4 +293,4 @@ Das Projekt verwendet laut `package.json` derzeit die Lizenz `ISC`.
 
 ## Autor
 
-Felix Michel
+Felix Michel (Entwickelt und veröffentlicht unter dem Projektnamen **NovaByte Studios**.)

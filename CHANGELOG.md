@@ -6,10 +6,15 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 
 ## [Unveröffentlicht]
 
-### Geplant
-- Notizen und Tags für gespeicherte Quellen ergänzen.
-- Prüfstatus für Quellen hinzufügen.
-- Quellen durchsuchen und filtern.
+#### Geplant
+- Erste öffentliche Testversion von Research Browser 0.10.3 über GitHub veröffentlichen.
+- Installierbares macOS-App-Paket erstellen.
+- Fehlerberichte und Rückmeldungen von Testern sammeln.
+- Quellen und Notizen durchsuchen und nach Tags filtern.
+- Prüfstatus und Bewertung für Quellen hinzufügen.
+- Datenexport und lokale Sicherung ergänzen.
+- Timeline und Research Board schrittweise umsetzen.
+- Spätere optionale KI-Unterstützung für Quellen- und Dokumentanalyse vorbereiten.
 
 ## [0.10.3] - 2026-10-13
 

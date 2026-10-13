@@ -1,3 +1,76 @@
-node_modules
-dist
+# Installierte npm-Abhängigkeiten
+node_modules/
+
+# Erzeugte App-Pakete und Build-Ausgaben
+dist/
+out/
+build/
+release/
+*.dmg
+*.pkg
+*.app
+*.zip
+
+# Umgebungsvariablen und geheime Konfigurationen
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Lokale Research-Browser-Daten
+workspace-data.json
+source-data.json
+note-data.json
+*-data.json
+
+# Temporäre Speicherdateien
+*.temporary
+*.tmp
+*.temp
+
+# Protokolle
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Chromium- und Electron-Browserprofile
+Cache/
+Code Cache/
+GPUCache/
+Local Storage/
+Session Storage/
+IndexedDB/
+Cookies
+Cookies-journal
+History
+History-journal
+Network/
+Service Worker/
+WebStorage/
+blob_storage/
+
+# macOS-Systemdateien
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Visual Studio Code: nur lokale Einstellungen
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.log
+
+# Testabdeckung
+coverage/
+
+# Sicherungsdateien von Editoren
+*~
+*.bak
+*.swp
+*.swo
