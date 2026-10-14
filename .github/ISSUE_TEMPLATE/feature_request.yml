@@ -1,0 +1,96 @@
+name: Funktion vorschlagen
+description: Schlage eine neue Funktion oder Verbesserung für Research Browser vor.
+title: "[Vorschlag] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vielen Dank für den Vorschlag.
+
+        Bitte beschreibe möglichst genau, welches Problem die gewünschte Funktion lösen soll.
+
+        Prüfe vor dem Absenden, ob eine ähnliche Funktion bereits vorgeschlagen wurde.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+      description: Beschreibe die aktuelle Situation und warum eine Verbesserung sinnvoll wäre.
+      placeholder: |
+        Momentan ist es schwierig, ...
+        Die vorgeschlagene Funktion würde helfen, weil ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Gewünschte Lösung
+      description: Wie sollte die neue Funktion ungefähr arbeiten?
+      placeholder: |
+        Research Browser sollte ...
+        Die Funktion könnte über ... erreichbar sein.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      description: Welcher Bereich des Research Browsers ist hauptsächlich betroffen?
+      options:
+        - Browser und Tabs
+        - Workspaces
+        - Quellen
+        - Notizen
+        - Tags
+        - Benutzeroberfläche
+        - Datenschutz und Sicherheit
+        - Installation und Updates
+        - Dokumentation
+        - Neuer Bereich
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Beispielhafter Ablauf
+      description: Beschreibe Schritt für Schritt, wie die Funktion verwendet werden könnte.
+      placeholder: |
+        1. Workspace öffnen
+        2. Bereich Quellen auswählen
+        3. ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Mögliche Alternativen
+      description: Gibt es andere Wege, mit denen das Problem gelöst werden könnte?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Zusätzliche Informationen
+      description: Ergänze bei Bedarf Beispiele, Skizzen oder Screenshots ohne persönliche Daten.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Kontrolle
+      options:
+        - label: Ich habe geprüft, ob eine ähnliche Funktion bereits vorgeschlagen wurde.
+          required: true
+        - label: Der Vorschlag enthält keine vertraulichen oder persönlichen Daten.
+          required: true
+        - label: Bei diesem Vorschlag handelt es sich nicht um eine Sicherheitsmeldung.
+          required: true

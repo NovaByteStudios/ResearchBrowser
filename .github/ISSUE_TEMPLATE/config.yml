@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Sicherheitsproblem vertraulich melden
+    url: https://github.com/novabytestudios/ResearchBrowser/security/advisories/new
+    about: Bitte veröffentliche Sicherheitslücken nicht als öffentliches Issue.
+
+  - name: Sicherheitsrichtlinie lesen
+    url: https://github.com/novabytestudios/ResearchBrowser/blob/main/SECURITY.md
+    about: Hinweise zum sicheren und vertraulichen Melden von Sicherheitsproblemen.

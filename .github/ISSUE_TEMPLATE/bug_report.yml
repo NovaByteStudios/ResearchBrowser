@@ -1,0 +1,40 @@
+name: Fehler melden
+description: Melde einen reproduzierbaren Fehler im Research Browser.
+title: "[Fehler] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vielen Dank für den Fehlerbericht.
+
+        Bitte veröffentliche hier keine Passwörter, Cookies, API-Schlüssel, privaten Notizen, vertraulichen Quellen oder andere persönliche Daten.
+
+        Sicherheitsprobleme müssen über GitHubs vertrauliche Sicherheitsmeldungen gemeldet werden.
+
+  - type: input
+    id: version
+    attributes:
+      label: Research-Browser-Version
+      description: Welche Version verwendest du?
+      placeholder: "Zum Beispiel: 0.10.3"
+    validations:
+      required: true
+
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS-Version
+      description: Welche macOS-Version ist installiert?
+      placeholder: "Zum Beispiel: macOS 26.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: Mac-Architektur
+      description: Welchen Prozessortyp besitzt der Mac?
+      options:
+        - Apple

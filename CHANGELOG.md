@@ -7,8 +7,7 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 ## [Unveröffentlicht]
 
 #### Geplant
-- Erste öffentliche Testversion von Research Browser 0.10.3 über GitHub veröffentlichen.
-- Installierbares macOS-App-Paket erstellen.
+- Erste öffentliche Testversion von Research Browser 0.10.3 als GitHub Pre-release veröffentlichen.
 - Fehlerberichte und Rückmeldungen von Testern sammeln.
 - Quellen und Notizen durchsuchen und nach Tags filtern.
 - Prüfstatus und Bewertung für Quellen hinzufügen.
@@ -16,24 +15,23 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Timeline und Research Board schrittweise umsetzen.
 - Spätere optionale KI-Unterstützung für Quellen- und Dokumentanalyse vorbereiten.
 
-## [0.10.3-Beta] - 2026-10-13
-
-### Hinzugefügt
-- Electron Forge für die Verpackung und Verteilung der Anwendung eingerichtet.
-- Ausführbare macOS-App erfolgreich erzeugt und außerhalb der Entwicklungsumgebung getestet.
-- ZIP- und DMG-Pakete für die öffentliche macOS-Testversion konfiguriert.
-- Installation und Start der Anwendung aus dem Programme-Ordner erfolgreich getestet.
 
 ## [0.10.3] - 2026-10-13
 
 ### Hinzugefügt
-
 - Tags für gespeicherte Quellen hinzugefügt.
 - Tag-Chips auf Quellenkarten hinzugefügt.
 - Eigenen Editor zum Bearbeiten der Quellen-Tags ergänzt.
+- Source-Available-Lizenz für die öffentliche Bereitstellung des Quellcodes hinzugefügt.
+- Datenschutzhinweise für lokal gespeicherte Anwendungs- und Browserdaten hinzugefügt.
+- Sicherheitsrichtlinie für vertrauliche Sicherheitsmeldungen hinzugefügt.
+- Hinweise zu verwendeter Drittsoftware und deren Lizenzen hinzugefügt.
+- Beitragsrichtlinien für Issues, Forks und Pull Requests hinzugefügt.
+- Strukturierte GitHub-Issue-Vorlage für Fehlerberichte hinzugefügt.
+- Strukturierte GitHub-Issue-Vorlage für Funktionsvorschläge hinzugefügt.
+- Direkte Links zu vertraulichen Sicherheitsmeldungen und zur Sicherheitsrichtlinie ergänzt.
 
 ### Verbessert
-
 - Quellen-Tags können nachträglich geändert oder vollständig entfernt werden.
 - Doppelte Quellen-Tags werden unabhängig von Groß- und Kleinschreibung entfernt.
 - Leere Tags und überflüssige Leerzeichen werden automatisch bereinigt.
@@ -41,10 +39,18 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Bestehende Quellen ohne Tags bleiben kompatibel.
 - Quellen-Tags bleiben nach einem vollständigen Neustart erhalten.
 - Tag-Editor kann über Abbrechen, Schließen, Escape oder einen Klick auf den Hintergrund verlassen werden.
+- README vollständig für die erste öffentliche Testveröffentlichung überarbeitet.
+- Projektstruktur, Funktionsumfang, Installationshinweise und Testhinweise aktualisiert.
+- `.gitignore` um Build-Dateien, lokale Anwendungsdaten, Browserprofile und mögliche Geheimnisse erweitert.
+- Electron Forge für die Verpackung und Verteilung der Anwendung eingerichtet.
+- Ausführbare macOS-App erfolgreich erzeugt und außerhalb der Entwicklungsumgebung getestet.
+- ZIP- und DMG-Pakete für die öffentliche macOS-Testversion konfiguriert.
+- Installation und Start der Anwendung aus dem Programme-Ordner erfolgreich getestet.
+- Öffentliches GitHub-Repository für Fehlerberichte und Beiträge vorbereitet.
+- Private Sicherheitsmeldungen für das GitHub-Repository aktiviert.
 
 ### Behoben
-
-- Nicht funktionierenden Systemdialog zum Bearbeiten von Quellen-Tags durch einen eigenen Tag-Editor ersetzt.
+- Nicht funktionierenden Systemdialog zum Bearbeiten von Quellen-Tags durch einen eigenen Editor ersetzt.
 
 ## [0.10.2] - 2026-10-11
 
