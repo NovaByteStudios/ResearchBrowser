@@ -30,6 +30,8 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Strukturierte GitHub-Issue-Vorlage für Fehlerberichte hinzugefügt.
 - Strukturierte GitHub-Issue-Vorlage für Funktionsvorschläge hinzugefügt.
 - Direkte Links zu vertraulichen Sicherheitsmeldungen und zur Sicherheitsrichtlinie ergänzt.
+- GitHub-Actions-Workflow zur automatischen Erstellung eines Windows-x64-Builds hinzugefügt.
+- Squirrel.Windows-Maker für die Erstellung eines Windows-Installationsprogramms ergänzt.
 
 ### Verbessert
 - Quellen-Tags können nachträglich geändert oder vollständig entfernt werden.

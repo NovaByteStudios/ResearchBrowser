@@ -11,6 +11,15 @@ module.exports = {
 
   makers: [
     {
+    name: "@electron-forge/maker-squirrel",
+    config: {
+            name: "ResearchBrowser",
+            authors: "Felix Michel / NovaByte Studios",
+            description:
+            "Workspace-basierter Browser für strukturierte Online-Recherche"
+        }
+        },
+    {
       name: "@electron-forge/maker-zip",
       platforms: [
         "darwin"
