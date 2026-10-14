@@ -50,6 +50,7 @@ Das Projekt verwendet Versionsnummern nach dem Schema `MAJOR.MINOR.PATCH`.
 - Installation und Start der Anwendung aus dem Programme-Ordner erfolgreich getestet.
 - Öffentliches GitHub-Repository für Fehlerberichte und Beiträge vorbereitet.
 - Private Sicherheitsmeldungen für das GitHub-Repository aktiviert.
+- Windows-Build-Workflow auf die von Electron Forge benötigte Node.js-Version 22.13.0 aktualisiert.
 
 ### Behoben
 - Nicht funktionierenden Systemdialog zum Bearbeiten von Quellen-Tags durch einen eigenen Editor ersetzt.
