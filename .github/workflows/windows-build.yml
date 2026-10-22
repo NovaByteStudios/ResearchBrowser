@@ -24,7 +24,7 @@ jobs:
       - name: Abhängigkeiten installieren
         run: npm ci
 
-      - name: Windows-Build erzeugen
+      - name: Windows-Build erzeugen… 
         run: npm run make -- --platform=win32 --arch=x64
 
       - name: Build-Dateien hochladen
